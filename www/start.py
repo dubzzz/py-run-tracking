@@ -13,8 +13,10 @@ import tornado.web
 
 import sys
 from os import path
-#sys.path.append(path.join(path.dirname(__file__), "../scripts/"))
-#from generate_db import DEFAULT_DB
+
+WWW_DIRECTORY = path.dirname(__file__)
+sys.path.append(path.join(WWW_DIRECTORY, "../scripts/"))
+from generate_db import DEFAULT_DB
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
