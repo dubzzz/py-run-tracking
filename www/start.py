@@ -20,6 +20,11 @@ class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("Hello World ^^")
 
+# Define tornado application
+application = tornado.web.Application([
+    (r"/", MainHandler),
+])
+
 if __name__ == "__main__":
     if len(sys.argv) != 1 and len(sys.argv) != 2:
         print('''Syntax: ./start.py <port=8080>''')
@@ -39,12 +44,7 @@ if __name__ == "__main__":
         print('''Syntax: ./start.py <port=8080>''')
         exit(3)
     
-    # Define server parameters
-    application = tornado.web.Application([
-        (r"/", MainHandler),
-    ])
-    application.listen(port)
-    
     # Start the server
+    application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
 
