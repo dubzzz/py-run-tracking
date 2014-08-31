@@ -17,6 +17,10 @@ def generate_tables(db=DEFAULT_DB):
     with conn:
         c = conn.cursor()
         
+        # Drop tables if they exist
+        c.execute('''DROP TABLE IF EXISTS runs''')
+        c.execute('''DROP TABLE IF EXISTS points''')
+        
         # Create tables
         c.execute('''CREATE TABLE runs (
                         id INTEGER PRIMARY KEY,
