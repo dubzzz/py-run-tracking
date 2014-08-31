@@ -11,8 +11,8 @@
 import sqlite3
 DEFAULT_DB = "run-tracking.db"
 
-def generate_tables(filename_db):
-    conn = sqlite3.connect(filename_db)
+def generate_tables(db=DEFAULT_DB):
+    conn = sqlite3.connect(db)
     c = conn.cursor()
     
     # Create tables
@@ -21,7 +21,8 @@ def generate_tables(filename_db):
                     start_time TEXT,
                     time_s INTEGER,
                     distance_m INTEGER,
-                    calories INTEGER)''')
+                    calories INTEGER,
+                    creator TEXT)''')
     c.execute('''CREATE TABLE points (
                     id INTEGER PRIMARY KEY,
                     run_id INTEGER,
