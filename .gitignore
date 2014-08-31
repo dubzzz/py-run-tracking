@@ -54,3 +54,6 @@ docs/_build/
 
 # Ignore runs
 runs/
+
+# Ignore db
+*.db
