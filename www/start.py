@@ -42,7 +42,7 @@ class NewRunHandler(RequestHandler):
         """
         
         self.render(get_template("new_run"),
-                rejected=None, success=self.success)
+                errors={}, success=self.success)
     
     def post(self):
         """ Add a run to the database
@@ -51,7 +51,7 @@ class NewRunHandler(RequestHandler):
             runfile = self.request.files['runfile'][0]
         except KeyError:
             self.render(get_template("new_run"),
-                    rejected="Missing file",
+                    errors={'runfile': "Missing file"},
                     success=False)
             return
         
@@ -60,7 +60,7 @@ class NewRunHandler(RequestHandler):
         
         if extension != ".tcx":
             self.render(get_template("new_run"),
-                    rejected="File extension has to be *.tcx",
+                    errors={'runfile': "File extension has to be *.tcx"},
                     success=False)
             return
         
@@ -71,7 +71,7 @@ class NewRunHandler(RequestHandler):
 
 # Define tornado application
 application = Application([
-    url(r"/", MainHandler),
+    url(r"/", MainHandler, name="home"),
     url(r"/new/run", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
     url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),
