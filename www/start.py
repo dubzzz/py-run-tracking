@@ -23,6 +23,7 @@ STATIC_PATH = path.join(WWW_PATH, "static/")
 
 sys.path.append(SCRIPT_PATH)
 from generate_db import DEFAULT_DB
+from import_tcx import import_from_tcx
 
 def get_template(name):
     return path.join(TEMPLATE_PATH, name+".html")
@@ -62,8 +63,10 @@ class NewRunHandler(RequestHandler):
                     errors={'runfile': "Extension de fichier incorrecte, .tcx requis"})
             return
         
-        with open(path.join(RUN_PATH, filename), 'w') as f:
+        fullfilename = path.join(RUN_PATH, filename)
+        with open(fullfilename, 'w') as f:
             f.write(runfile['body'])
+        import_from_tcx(fullfilename, DEFAULT_DB)
         
         self.redirect(self.reverse_url("new_run_success"))
 

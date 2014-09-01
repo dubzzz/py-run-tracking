@@ -12,7 +12,7 @@
 #   -  sqlite database have already been generated using generate_db.py
 #
 # Syntax:
-#   ./import.py <*.pyx file>
+#   ./import_tcx.py <*.pyx file>
 
 from __future__ import print_function
 
