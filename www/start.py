@@ -41,8 +41,8 @@ class NewRunHandler(RequestHandler):
         """ Display a form to add a new run into the database 
         """
         
-        self.render(get_template("new_run"),
-                errors={}, success=self.success)
+        self.render(get_template("new_run"), page="new_run",
+                success=self.success)
     
     def post(self):
         """ Add a run to the database
@@ -50,18 +50,16 @@ class NewRunHandler(RequestHandler):
         try:
             runfile = self.request.files['runfile'][0]
         except KeyError:
-            self.render(get_template("new_run"),
-                    errors={'runfile': "Missing file"},
-                    success=False)
+            self.render(get_template("new_run"), page="new_run",
+                    errors={'runfile': "Fichier manquant"})
             return
         
         filename = path.split(runfile['filename'])[1]
         extension = path.splitext(filename)[1]
         
         if extension != ".tcx":
-            self.render(get_template("new_run"),
-                    errors={'runfile': "File extension has to be *.tcx"},
-                    success=False)
+            self.render(get_template("new_run"), page="new_run",
+                    errors={'runfile': "Extension de fichier incorrecte, .tcx requis"})
             return
         
         with open(path.join(RUN_PATH, filename), 'w') as f:

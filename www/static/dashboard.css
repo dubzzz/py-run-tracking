@@ -66,6 +66,19 @@ body {
   background-color: #428bca;
 }
 
+.nav-sidebar > .title-sidebar {
+  height: 50px;
+  font-size: 1.1em;
+  line-height: 45px;
+  text-align: center;
+}
+.nav-sidebar > .title-sidebar a {
+  color: #999999;
+}
+.nav-sidebar > .title-sidebar a:hover {
+  color: #333333;
+  background: none;
+}
 
 /*
  *  * Main content
