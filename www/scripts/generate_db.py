@@ -12,8 +12,8 @@ import sqlite3
 
 import sys
 from os import path
-SCRIPTS_DIRECTORY = path.dirname(__file__)
-DEFAULT_DB = path.join(SCRIPTS_DIRECTORY, "../run-tracking.db")
+SCRIPT_PATH = path.dirname(__file__)
+DEFAULT_DB = path.join(SCRIPT_PATH, "../run-tracking.db")
 
 def generate_tables(db=DEFAULT_DB):
     conn = sqlite3.connect(db)

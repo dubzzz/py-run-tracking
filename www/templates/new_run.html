@@ -1,0 +1,20 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>Upload a new run</title>
+</head>
+<body>
+  <h1>Upload a new run</h1>
+  {% if success %}
+    <p>File has been uploaded. Results from its analyse will soon be available on <a href="#">Show Runs</a>.</p>
+  {% elif rejected %}
+    <p>Upload has been rejected: {{ rejected }}</p>
+  {% end %}
+  <form enctype="multipart/form-data" action="{{ reverse_url('new_run') }}" method="post">
+    File: <input type="file" name="runfile" />
+    <br />
+    <br />
+    <input type="submit" value="upload" />
+  </form>
+</body>
+</html>

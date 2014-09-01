@@ -8,23 +8,71 @@
 # Syntax:
 #   ./start.py <port=8080>
 
-import tornado.ioloop
-import tornado.web
+from tornado.ioloop import IOLoop
+from tornado.web import RequestHandler, StaticFileHandler, Application, url
 
 import sys
 from os import path
+import uuid
 
-WWW_DIRECTORY = path.dirname(__file__)
-sys.path.append(path.join(WWW_DIRECTORY, "../scripts/"))
+WWW_PATH = path.dirname(__file__)
+SCRIPT_PATH = path.join(WWW_PATH, "scripts/")
+RUN_PATH = path.join(WWW_PATH, "runs/")
+TEMPLATE_PATH = path.join(WWW_PATH, "templates/")
+STATIC_PATH = path.join(WWW_PATH, "static/")
+
+sys.path.append(SCRIPT_PATH)
 from generate_db import DEFAULT_DB
 
-class MainHandler(tornado.web.RequestHandler):
+def get_template(name):
+    return path.join(TEMPLATE_PATH, name+".html")
+
+class MainHandler(RequestHandler):
     def get(self):
         self.write("Hello World ^^")
 
+class NewRunHandler(RequestHandler):
+    def initialize(self, success=False):
+        """ Initialize the handler
+        """
+        self.success = success
+    
+    def get(self):
+        """ Display a form to add a new run into the database 
+        """
+        
+        self.render(get_template("new_run"),
+                rejected=None, success=self.success)
+    
+    def post(self):
+        """ Add a run to the database
+        """
+        try:
+            runfile = self.request.files['runfile'][0]
+        except KeyError:
+            self.render(get_template("new_run"),
+                    rejected="Missing file",
+                    success=False)
+            return
+        
+        filename = path.split(runfile['filename'])[1]
+        extension = path.splitext(filename)[1]
+        
+        if extension == ".tcx":
+            f = open(path.join(RUN_PATH, filename), 'w')
+            f.write(runfile['body'])
+            self.redirect(self.reverse_url("new_run_success"))
+        else:
+            self.render(get_template("new_run"),
+                    rejected="File extension has to be *.tcx",
+                    success=False)
+
 # Define tornado application
-application = tornado.web.Application([
-    (r"/", MainHandler),
+application = Application([
+    url(r"/", MainHandler),
+    url(r"/new/run", NewRunHandler, name="new_run"),
+    url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
+    url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),
 ])
 
 if __name__ == "__main__":
@@ -48,5 +96,5 @@ if __name__ == "__main__":
     
     # Start the server
     application.listen(port)
-    tornado.ioloop.IOLoop.instance().start()
+    IOLoop.current().start()
 
