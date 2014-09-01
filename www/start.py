@@ -58,14 +58,16 @@ class NewRunHandler(RequestHandler):
         filename = path.split(runfile['filename'])[1]
         extension = path.splitext(filename)[1]
         
-        if extension == ".tcx":
-            f = open(path.join(RUN_PATH, filename), 'w')
-            f.write(runfile['body'])
-            self.redirect(self.reverse_url("new_run_success"))
-        else:
+        if extension != ".tcx":
             self.render(get_template("new_run"),
                     rejected="File extension has to be *.tcx",
                     success=False)
+            return
+        
+        with open(path.join(RUN_PATH, filename), 'w') as f:
+            f.write(runfile['body'])
+        
+        self.redirect(self.reverse_url("new_run_success"))
 
 # Define tornado application
 application = Application([
