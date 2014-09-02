@@ -22,10 +22,11 @@ function addInfoToMarker(map, marker, message) {
 	});
 }
 
-function buildPath(path, begin, end) {
+function buildPath(path, begin, end) { // begin to end (included)
 	if (begin == undefined) begin = 0;
 	if (end == undefined) end = path.length;
-	if (begin >= end) return [];
+	else end++;
+	if (begin >= end-1) return [];
 	var map_pts = [];
 	for (var i=begin ; i!=end ; i++) {
 		var pt = new google.maps.LatLng(path[i]['lat'], path[i]['long']);

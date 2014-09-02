@@ -92,7 +92,7 @@ class NewRunHandler(RequestHandler):
 
 class RunDetailsHandler(RequestHandler):
     def get(self, run_id):
-        """ Diplay details concerning a given run
+        """ Display details concerning a given run
         """
         
         next_run = None
@@ -148,12 +148,60 @@ class RunDetailsHandler(RequestHandler):
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
                 run_path=run_path)
 
+class RunSectionsHandler(RequestHandler):
+    def get(self, run_id):
+        """ Display sections registered in a given run
+        """
+        
+        next_run = None
+        previous_run = None
+        run_path = list()
+        conn = sqlite3.connect(DEFAULT_DB)
+        with conn:
+            c = conn.cursor()
+            
+            # Retrieve details concerning the run
+            c.execute('''SELECT start_time
+                            FROM runs WHERE id=?
+                            LIMIT 1''', (run_id,))
+            data_db = c.fetchone()
+            
+            # Get next/previous run ids (based on start_time)
+            # runs may have been added without any order
+            c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
+                            FROM runs
+                            WHERE start_time>=? AND id<>?
+                            LIMIT 1''', (data_db[0], run_id))
+            next_run = c.fetchone()
+            c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
+                            FROM runs
+                            WHERE start_time<=? AND id<>?
+                            LIMIT 1''', (data_db[0], run_id))
+            previous_run = c.fetchone()
+            
+            # Retrieve the path
+            c.execute('''SELECT latitude_d, longitude_d, altitude_m,
+                                (julianday(datetime)-2440587.5)*86400.0,
+                                distance_m, julianday(datetime-?)*86400.0
+                            FROM points WHERE run_id=?
+                            ORDER BY datetime ASC''',
+                    (data_db[0],run_id,))
+            run_path = c.fetchall()
+        
+        self.render(get_template("run_sections"), page="run_sections",
+                google_key=GOOGLE_MAPS_KEY, run_id=run_id,
+                previous_run=previous_run, next_run=next_run,
+                corresponding_ids={'latitude': 0, 'longitude': 1,
+                    'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
+                run_path=run_path)
+
 # Define tornado application
 application = Application([
     url(r"/", MyRunsHandler, name="my_runs"),
     url(r"/new/run/", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
     url(r"/run/(\d+)/", RunDetailsHandler, name="run_details"),
+    url(r"/run/(\d+)/sections/", RunSectionsHandler, name="run_sections"),
     url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),
 ])
 

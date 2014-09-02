@@ -1,10 +1,18 @@
 {% extends "base_leftcolumn.html" %}
 
+{% block extra_js %}
+  <script src="http://maps.googleapis.com/maps/api/js?key={{ google_key }}&sensor=false"></script>
+  <script src="/static/js/maps.js"></script>
+{% end %}
+
 {% block subnav %}
 <li class="title-sidebar">
   <a href="{{ reverse_url('run_details', run_id) }}">Sortie</a>
 </li>
 <li {% if page == "run_details" %}class="active"{% end %}>
   <a href="{{ reverse_url('run_details', run_id) }}">D&eacute;tails</a>
+</li>
+<li {% if page == "run_sections" %}class="active"{% end %}>
+  <a href="{{ reverse_url('run_sections', run_id) }}">Tron&ccedil;ons</a>
 </li>
 {% end %}
