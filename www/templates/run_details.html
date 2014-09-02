@@ -12,6 +12,18 @@
 {% set distance=corresponding_ids['distance'] %}
   <script src="http://maps.googleapis.com/maps/api/js?key={{ google_key}}&sensor=false"></script>
   
+  <ul class="pager">
+    {% if previous_run %}
+      <li class="previous"><a href="{{ reverse_url('run_details', previous_run[0]) }}" data-rawdata-type="date" data-rawdata-before="&larr; ">{{ previous_run[1] }}</a></li>
+    {% else %}
+      <li class="previous disabled"><a href="#">&larr;</a></li>
+    {% end %}
+    {% if next_run %}
+      <li class="next"><a href="{{ reverse_url('run_details', next_run[0]) }}" data-rawdata-type="date" data-rawdata-after=" &rarr;">{{ next_run[1] }}</a></li>
+    {% else %}
+      <li class="next disabled"><a href="#">&rarr;</a></li>
+    {% end %}
+  </ul>
   <div class="row">
     <div class="col-md-8">
       <div id="map" style="width:500px;height:380px;"></div>

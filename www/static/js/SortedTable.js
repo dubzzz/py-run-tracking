@@ -30,6 +30,15 @@ function formatSortedTableData(rawdata, content) {
 		var speed_remaining_100kmh = parseInt(10*speed_kmh)%10;
 		return Math.floor(speed_kmh) + ","
 				+ speed_remaining_100kmh + " km/h";
+	} else if (content == "date") { // in unix time seconds
+		var to_date = new Date(1000*rawdata);
+		
+		var day_str = to_date.getDate() < 10 ? "0" + to_date.getDate()
+				: to_date.getDate().toString();
+		var month_str = to_date.getMonth() < 10 ? "0" + to_date.getMonth()
+				: to_date.getMonth().toString();
+		var year_str = to_date.getFullYear().toString();
+		return day_str + "/" + month_str + "/" + year_str;
 	} else if (content == "datetime") { // in unix time seconds
 		var to_date = new Date(1000*rawdata);
 		

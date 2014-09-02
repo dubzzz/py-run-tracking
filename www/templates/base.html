@@ -53,9 +53,14 @@
   </div>
   <script type="text/javascript">
     $("[data-rawdata-type]").each(function() {
-      $(this).html(formatSortedTableData(
+      var formatted = formatSortedTableData(
           $(this).html(),
-          $(this).attr('data-rawdata-type')));
+          $(this).attr('data-rawdata-type'));
+      var before = $(this).attr('data-rawdata-before');
+      if (before == undefined) before = "";
+      var after = $(this).attr('data-rawdata-after');
+      if (after == undefined) after = "";
+      $(this).html(before + formatted + after);
     });
   </script>
 </body>

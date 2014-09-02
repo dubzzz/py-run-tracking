@@ -95,11 +95,16 @@ class RunDetailsHandler(RequestHandler):
         """ Diplay details concerning a given run
         """
         
+        next_run = None
+        previous_run = None
+        
         run_details = dict()
         run_path = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
+            
+            # Retrieve details concerning the run
             c.execute('''SELECT (julianday(start_time)-2440587.5)*86400.0,
                                 time_s, distance_m, calories
                             FROM runs WHERE id=?
@@ -112,6 +117,21 @@ class RunDetailsHandler(RequestHandler):
                     'calories': run_details_db[3],
                     'speed': float(run_details_db[2])/float(run_details_db[1]),}
             del run_details_db
+            
+            # Get next/previous run ids (based on start_time)
+            # runs may have been added without any order
+            c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
+                            FROM runs
+                            WHERE start_time>=datetime(?, 'unixepoch') AND id<>?
+                            LIMIT 1''', (run_details['start'], run_id))
+            next_run = c.fetchone()
+            c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
+                            FROM runs
+                            WHERE start_time<=datetime(?, 'unixepoch') AND id<>?
+                            LIMIT 1''', (run_details['start'], run_id))
+            previous_run = c.fetchone()
+            
+            # Retrieve the path
             c.execute('''SELECT latitude_d, longitude_d, altitude_m,
                                 (julianday(datetime)-2440587.5)*86400.0,
                                 distance_m, julianday(datetime)*86400.0-?
@@ -122,6 +142,7 @@ class RunDetailsHandler(RequestHandler):
         
         self.render(get_template("run_details"), page="run_details",
                 google_key=GOOGLE_MAPS_KEY, run_id=run_id,
+                previous_run=previous_run, next_run=next_run,
                 details=run_details,
                 corresponding_ids={'latitude': 0, 'longitude': 1,
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
