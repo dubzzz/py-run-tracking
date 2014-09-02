@@ -22,12 +22,12 @@ function formatSortedTableData(rawdata, content) {
 		return hours + ":" + minutes_txt + ":" + seconds_txt;
 	} else if (content == "distance") { // in meters
 		var distance_km = rawdata/1000.;
-		var distance_remaining_100m = parseInt(10*distance_km)%10;
+		var distance_remaining_100m = Math.round(10*distance_km)%10;
 		return Math.floor(distance_km) + ","
 				+ distance_remaining_100m + " km";
 	} else if (content == "speed") { // in m/s
 		var speed_kmh = 3.6*rawdata;
-		var speed_remaining_100kmh = parseInt(10*speed_kmh)%10;
+		var speed_remaining_100kmh = Math.round(10*speed_kmh)%10;
 		return Math.floor(speed_kmh) + ","
 				+ speed_remaining_100kmh + " km/h";
 	} else if (content == "date") { // in unix time seconds
