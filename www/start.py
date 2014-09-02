@@ -39,7 +39,8 @@ class MyRunsHandler(RequestHandler):
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
-            c.execute('''SELECT start_time, time_s, distance_m, calories
+            c.execute('''SELECT (julianday(start_time)-2440587.5)*86400.0,
+                                time_s, distance_m, calories
                             FROM runs ORDER BY date(start_time) DESC''')
             my_runs_db = c.fetchall()
             for run in my_runs_db:
