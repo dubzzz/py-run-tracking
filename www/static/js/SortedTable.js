@@ -1,10 +1,10 @@
 // Custom sort method
-Array.prototype.sortOnColumn = function(column, data_type) {
+Array.prototype.sortOnColumn = function(column, reversed=false) {
 	this.sort(function(a, b){
 		if(a[column] < b[column]){
-			return -1;
+			return reversed ? 1 : -1;
 		} else if(a[column] > b[column]) {
-			return 1;
+			return reversed ? -1 : 1;
 		}
 		return 0;
 	});
@@ -100,8 +100,25 @@ function SortedTable(table, rawdata_details, rawdata) {
 		this.update(0);
 	};
 	this.update = function(order_on_column) {
+		// Get previous order
+		var head_columns = table.getElementsByTagName("thead")[0]
+				.getElementsByTagName("td");
+		var previous_order = $(head_columns[order_on_column]
+				.getElementsByTagName("a")[0]).attr("data-sortedtable-order");
+		var new_order = previous_order == "asc" ? "desc" : "asc";
+		for (var i=0 ; i!=head_columns.length ; i++) {
+			if (i == order_on_column)
+				$(head_columns[i]
+						.getElementsByTagName("a")[0])
+							.attr("data-sortedtable-order", new_order);
+			else
+				$(head_columns[i]
+						.getElementsByTagName("a")[0])
+							.attr("data-sortedtable-order", "");
+		}
+		
 		// Sort the array
-		this.rawdata.sortOnColumn(order_on_column);
+		this.rawdata.sortOnColumn(order_on_column, new_order == "desc");
 
 		// Display the data
 		tbody = $(table.getElementsByTagName("tbody")[0]);
