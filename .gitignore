@@ -57,3 +57,6 @@ runs/
 
 # Ignore db
 *.db
+
+# Ignore keys.py
+www/keys.py

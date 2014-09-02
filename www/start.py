@@ -88,11 +88,20 @@ class NewRunHandler(RequestHandler):
         
         self.redirect(self.reverse_url("new_run_success"))
 
+class RunDetailsHandler(RequestHandler):
+    def get(self, run_id):
+        """ Diplay details concerning a given run
+        """
+        
+        self.render(get_template("run_details"), page="run_details",
+                run_id=run_id)
+
 # Define tornado application
 application = Application([
     url(r"/", MyRunsHandler, name="my_runs"),
-    url(r"/new/run", NewRunHandler, name="new_run"),
+    url(r"/new/run/", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
+    url(r"/run/(\d+)/", RunDetailsHandler, name="run_details"),
     url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),
 ])
 

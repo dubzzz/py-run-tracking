@@ -1,0 +1,10 @@
+{% extends "base_leftcolumn.html" %}
+
+{% block subnav %}
+<li class="title-sidebar">
+  <a href="{{ reverse_url('run_details', run_id) }}">Sortie</a>
+</li>
+<li {% if page == "run_details" %}class="active"{% end %}>
+  <a href="{{ reverse_url('run_details', run_id) }}">D&eacute;tails</a>
+</li>
+{% end %}
