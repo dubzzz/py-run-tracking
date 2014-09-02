@@ -116,7 +116,8 @@ class RunDetailsHandler(RequestHandler):
                                 (julianday(datetime)-2440587.5)*86400.0,
                                 distance_m, julianday(datetime)*86400.0-?
                             FROM points WHERE run_id=?
-                            ORDER BY datetime ASC''', (run_details['start'],run_id,))
+                            ORDER BY datetime ASC''',
+                    (run_details['start']+2440587.5*86400,run_id,))
             run_path = c.fetchall()
         
         self.render(get_template("run_details"), page="run_details",
