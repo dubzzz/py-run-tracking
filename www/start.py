@@ -23,6 +23,8 @@ RUN_PATH = path.join(WWW_PATH, "runs/")
 TEMPLATE_PATH = path.join(WWW_PATH, "templates/")
 STATIC_PATH = path.join(WWW_PATH, "static/")
 
+from keys import GOOGLE_MAPS_KEY
+
 sys.path.append(SCRIPT_PATH)
 from generate_db import DEFAULT_DB
 from import_tcx import import_from_tcx
@@ -93,8 +95,34 @@ class RunDetailsHandler(RequestHandler):
         """ Diplay details concerning a given run
         """
         
+        run_path = list()
+        conn = sqlite3.connect(DEFAULT_DB)
+        with conn:
+            c = conn.cursor()
+            c.execute('''SELECT latitude_d, longitude_d, altitude_m,
+                                (julianday(datetime)-2440587.5)*86400.0,
+                                distance_m
+                            FROM points WHERE run_id=?
+                            ORDER BY datetime ASC''', (run_id,))
+            run_path_db = c.fetchall()
+            
+            # Measure time between two points
+            previous_pt_time = None
+            for i in range(len(run_path_db)):
+                pt = list(run_path_db[i])
+                if previous_pt_time is None:
+                    pt.append(0)
+                else:
+                    pt.append(pt[3] - previous_pt_time,)
+                previous_pt_time = pt[3]
+                run_path.append(pt)
+            del run_path_db
+        
         self.render(get_template("run_details"), page="run_details",
-                run_id=run_id)
+                google_key=GOOGLE_MAPS_KEY, run_id=run_id,
+                corresponding_ids={'latitude': 0, 'longitude': 1,
+                    'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
+                run_path=run_path)
 
 # Define tornado application
 application = Application([
