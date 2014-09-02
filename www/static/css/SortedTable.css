@@ -1,0 +1,25 @@
+table thead a {
+    position: relative;
+    display: inline-block;
+    padding-right: 25px;
+}
+
+table thead a:after {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: 400;
+    
+    width: 20px;
+    content: ' ';
+}
+
+table thead a[data-sortedtable-order='asc']:after {
+    content: "\e113";
+}
+table thead a[data-sortedtable-order='desc']:after {
+    content:"\e114";
+}
