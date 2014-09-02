@@ -1,7 +1,7 @@
 {% extends "base_leftcolumn.html" %}
 
-{% block title %}Nouvelle sortie{% end %}
-{% block title_h1 %}Nouvelle sortie{% end %}
+{% block title %}Mes sorties{% end %}
+{% block title_h1 %}Mes sorties{% end %}
 
 {% block subcontent %}
 {% set my_runs=globals().get('my_runs', []) %}
@@ -12,6 +12,7 @@
         <td>Date</td>
         <td>Distance</td>
         <td>Durée</td>
+        <td>Vitesse moy.</td>
         <td>Calories</td>
       </tr>
     </thead>
@@ -24,13 +25,15 @@
         {type: 'date', content: "datetime"},
         {type: 'int', content: "distance"},
         {type: 'int', content: "time"},
-        {type: 'int', unit: 'kcal'}
+        {type: 'int', content: 'speed'},
+        {type: 'int', unit: 'kcal'},
     ];
     var my_runs_table_data = [
       {% for run in my_runs %}
         [
           {{ run["date"] }}, {{ run["distance"] }},
-          {{ run["time"] }}, {{ run["calories"] }}
+          {{ run["time"] }}, {{ run["speed"] }},
+          {{ run["calories"] }},
         ],
       {% end %}
     ];

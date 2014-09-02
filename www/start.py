@@ -45,7 +45,8 @@ class MyRunsHandler(RequestHandler):
             my_runs_db = c.fetchall()
             for run in my_runs_db:
                 my_runs.append({'date': run[0], 'time': run[1],
-                        'distance': run[2], 'calories': run[3]})
+                        'distance': run[2], 'calories': run[3],
+                        'speed': float(run[2])/float(run[1])})
             del my_runs_db
         self.render(get_template("my_runs"), page="my_runs", my_runs=my_runs)
 
