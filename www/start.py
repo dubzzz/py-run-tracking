@@ -170,11 +170,13 @@ class RunDetailsHandler(RequestHandler):
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
                             WHERE start_time>=datetime(?, 'unixepoch') AND id<>?
+                            ORDER BY start_time ASC
                             LIMIT 1''', (run_details['start'], run_id))
             next_run = c.fetchone()
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
                             WHERE start_time<=datetime(?, 'unixepoch') AND id<>?
+                            ORDER BY start_time DESC
                             LIMIT 1''', (run_details['start'], run_id))
             previous_run = c.fetchone()
             
@@ -219,11 +221,13 @@ class RunSectionsHandler(RequestHandler):
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
                             WHERE start_time>=? AND id<>?
+                            ORDER BY start_time ASC
                             LIMIT 1''', (data_db[0], run_id))
             next_run = c.fetchone()
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
                             WHERE start_time<=? AND id<>?
+                            ORDER BY start_time DESC
                             LIMIT 1''', (data_db[0], run_id))
             previous_run = c.fetchone()
             
