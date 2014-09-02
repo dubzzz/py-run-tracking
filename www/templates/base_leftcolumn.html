@@ -7,11 +7,11 @@
       <li class="title-sidebar">
         <a href="#">Principal</a>
       </li>
-      <li {% if page == "runs" %}class="active"{% end %}>
-        <a href="#">Mes sorties</a>
+      <li {% if page == "my_runs" %}class="active"{% end %}>
+        <a href="{{ reverse_url('my_runs') }}">Mes sorties</a>
       </li>
       <li {% if page == "new_run" %}class="active"{% end %}>
-        <a href="#"><span class="glyphicon glyphicon-plus"></span> Nouvelle sortie</a>
+        <a href="{{ reverse_url('new_run') }}"><span class="glyphicon glyphicon-plus"></span> Nouvelle sortie</a>
       </li>
     </ul>
   </div>

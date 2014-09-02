@@ -4,12 +4,14 @@
 #
 # Requirements (import from):
 #   -  tornado
+#   -  sqlite3
 #
 # Syntax:
 #   ./start.py <port=8080>
 
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler, StaticFileHandler, Application, url
+import sqlite3
 
 import sys
 from os import path
@@ -28,9 +30,23 @@ from import_tcx import import_from_tcx
 def get_template(name):
     return path.join(TEMPLATE_PATH, name+".html")
 
-class MainHandler(RequestHandler):
+class MyRunsHandler(RequestHandler):
     def get(self):
-        self.write("Hello World ^^")
+        """ Display all the runs stored into the database
+        """
+        
+        my_runs = list()
+        conn = sqlite3.connect(DEFAULT_DB)
+        with conn:
+            c = conn.cursor()
+            c.execute('''SELECT start_time, time_s, distance_m, calories
+                            FROM runs ORDER BY date(start_time) DESC''')
+            my_runs_db = c.fetchall()
+            for run in my_runs_db:
+                my_runs.append({'date': run[0], 'time': run[1],
+                        'distance': run[2], 'calories': run[3]})
+            del my_runs_db
+        self.render(get_template("my_runs"), page="my_runs", my_runs=my_runs)
 
 class NewRunHandler(RequestHandler):
     def initialize(self, success=False):
@@ -72,7 +88,7 @@ class NewRunHandler(RequestHandler):
 
 # Define tornado application
 application = Application([
-    url(r"/", MainHandler, name="home"),
+    url(r"/", MyRunsHandler, name="my_runs"),
     url(r"/new/run", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
     url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),

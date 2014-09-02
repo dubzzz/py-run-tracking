@@ -1,0 +1,42 @@
+{% extends "base_leftcolumn.html" %}
+
+{% block title %}Nouvelle sortie{% end %}
+{% block title_h1 %}Nouvelle sortie{% end %}
+
+{% block subcontent %}
+{% set my_runs=globals().get('my_runs', []) %}
+  <table class="table table-striped" id="my_runs_table">
+    <thead>
+      <tr>
+        <td>#</td>
+        <td>Date</td>
+        <td>Distance</td>
+        <td>Durée</td>
+        <td>Calories</td>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  
+  <script type="text/javascript">
+    var my_runs_table_type = [
+        {type: 'date'},
+        {type: 'int'},
+        {type: 'int'},
+        {type: 'int', unit: 'kcal'}
+    ];
+    var my_runs_table_data = [
+      {% for run in my_runs %}
+        [
+          '{{ run["date"] }}', {{ run["distance"] }},
+          {{ run["time"] }}, {{ run["calories"] }}
+        ],
+      {% end %}
+    ];
+    
+    var my_runs_table = new SortedTable($("#my_runs_table")[0],
+        my_runs_table_type, my_runs_table_data);
+    my_runs_table.init();
+  </script>
+{% end %}
