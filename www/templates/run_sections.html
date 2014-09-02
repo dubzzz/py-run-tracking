@@ -140,4 +140,55 @@
       updateSliderRange();
     });
   </script>
+  
+  <div class="row">
+    <table class="table table-striped" id="run_sections_table">
+      <thead>
+        <tr>
+          <td>#</td>
+          <td>Nom</td>
+          <td>Départ au km</td>
+          <td>Distance</td>
+          <td>Durée</td>
+          <td>Vitesse moy.</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="6">
+          {% if len(run_sections) > 0 %}Veuillez activer Javascript afin de pouvoir consulter ces donn&eacute;es
+          {% else %}Aucun tro&ccedil;on n'a &eacute;t&eacute; rep&eacute;r&eacute; sur ce trac&eacute;{% end %}
+        </td></tr>
+      </tbody>
+    </table>
+    
+    {% if len(run_sections) > 0 %}
+      <script type="text/javascript">
+        var run_sections_table_type = [
+            {type: 'text'},
+            {type: 'int', content: "distance"},
+            {type: 'int', content: "distance"},
+            {type: 'int', content: "time"},
+            {type: 'int', content: 'speed'},
+        ];
+        var run_sections_table_data = [
+          {% for section in run_sections %}
+            [
+              {% set delta_distance=run_path[section[2]][distance] - run_path[section[1]][distance] %}
+              {% set delta_time=run_path[section[2]][time] - run_path[section[1]][time] %}
+              
+              "{{ section[0] }}",
+              {{ run_path[section[1]][distance] }},
+              {{ delta_distance }},
+              {{ delta_time }},
+              {% if delta_time != 0 %}{{ delta_distance/delta_time }}{% else %}0{% end %},
+            ],
+          {% end %}
+        ];
+        
+        var run_sections_table = new SortedTable($("#run_sections_table")[0],
+            run_sections_table_type, run_sections_table_data);
+        run_sections_table.init();
+      {% end %}
+    </script>
+  </div>
 {% end %}

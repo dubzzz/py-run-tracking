@@ -203,6 +203,7 @@ class RunSectionsHandler(RequestHandler):
         previous_run = None
         run_path = list()
         all_sections_available = list()
+        run_sections = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
@@ -229,7 +230,7 @@ class RunSectionsHandler(RequestHandler):
             # Retrieve the path
             c.execute('''SELECT latitude_d, longitude_d, altitude_m,
                                 (julianday(datetime)-2440587.5)*86400.0,
-                                distance_m, julianday(datetime-?)*86400.0
+                                distance_m, (julianday(datetime)-julianday(?))*86400.0, id
                             FROM points WHERE run_id=?
                             ORDER BY datetime ASC''',
                     (data_db[0],run_id,))
@@ -238,13 +239,22 @@ class RunSectionsHandler(RequestHandler):
             # Retrieve the available sections
             c.execute('''SELECT id, name FROM sections''')
             all_sections_available = c.fetchall()
+            c.execute('''SELECT name, from_id-?, to_id-?
+                            FROM section_run
+                            INNER JOIN sections
+                                ON section_run.section_id=sections.id
+                            WHERE run_id=?
+                            ORDER BY from_id''',
+                    (run_path[0][6], run_path[0][6], run_id,))
+            run_sections = c.fetchall()
         
         self.render(get_template("run_sections"), page="run_sections",
                 google_key=GOOGLE_MAPS_KEY, run_id=run_id,
                 previous_run=previous_run, next_run=next_run,
                 corresponding_ids={'latitude': 0, 'longitude': 1,
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
-                run_path=run_path, all_sections_available=all_sections_available)
+                run_path=run_path, all_sections_available=all_sections_available,
+                run_sections=run_sections)
 
 # Define tornado application
 application = Application([
