@@ -20,17 +20,32 @@ function formatSortedTableData(rawdata, content) {
 		var seconds = parseInt(rawdata);
 		var seconds_txt = seconds < 10 ? "0"+seconds : seconds.toString();
 		return hours + ":" + minutes_txt + ":" + seconds_txt;
-	} else if (content == "distance" || content == "speed") {
+	} else if (content == "distance") { // in meters
 		var distance_km = rawdata/1000.;
 		var distance_remaining_100m = parseInt(10*distance_km)%10;
-		if (content == "distance")
-			return Math.floor(distance_km) + ","
-					+ distance_remaining_100m + " km";
-		else if (content == "distance")
-			return Math.floor(distance_km) + ","
-					+ distance_remaining_100m + " km/h";
+		return Math.floor(distance_km) + ","
+				+ distance_remaining_100m + " km";
+	} else if (content == "speed") { // in m/s
+		var speed_kmh = 3.6*rawdata;
+		var speed_remaining_100kmh = parseInt(10*speed_kmh)%10;
+		return Math.floor(speed_kmh) + ","
+				+ speed_remaining_100kmh + " km/h";
+	} else if (content == "datetime") { // in unix time seconds
+		var to_date = new Date(1000*rawdata);
 		
-		return Math.floor(distance_km) + "," + distance_remaining_100m;
+		var day_str = to_date.getDate() < 10 ? "0" + to_date.getDate()
+				: to_date.getDate().toString();
+		var month_str = to_date.getMonth() < 10 ? "0" + to_date.getMonth()
+				: to_date.getMonth().toString();
+		var year_str = to_date.getFullYear().toString();
+		var hours_str = to_date.getHours() < 10 ? "0" + to_date.getHours()
+				: to_date.getHours().toString();
+		var minutes_str = to_date.getMinutes() < 10 ? "0" + to_date.getMinutes()
+				: to_date.getMinutes().toString();
+		var seconds_str = to_date.getSeconds() < 10 ? "0" + to_date.getSeconds()
+				: to_date.getSeconds().toString();
+		return day_str + "/" + month_str + "/" + year_str
+				+ " " + hours_str + ":" + minutes_str + ":" + seconds_str;
 	} else
 		return rawdata;
 }

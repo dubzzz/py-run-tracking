@@ -29,7 +29,7 @@
     var my_runs_table_data = [
       {% for run in my_runs %}
         [
-          '{{ run["date"] }}', {{ run["distance"] }},
+          {{ run["date"] }}, {{ run["distance"] }},
           {{ run["time"] }}, {{ run["calories"] }}
         ],
       {% end %}
