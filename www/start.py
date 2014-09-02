@@ -90,6 +90,53 @@ class NewRunHandler(RequestHandler):
         
         self.redirect(self.reverse_url("new_run_success"))
 
+class NewSectionHandler(RequestHandler):
+    def post(self, run_id):
+        """ Add a section to the run run_id
+        """
+        
+        section_from = int(self.request.arguments['section_from'][0])
+        section_to = int(self.request.arguments['section_to'][0])
+        existing_section_id = int(self.request.arguments['existing_section_id'][0])
+        new_section_name = self.request.arguments['new_section_name'][0]
+        
+        # Bad sections from/to
+        if section_from >= section_to:
+            return
+        
+        # Retrieve real ids from points
+        section_from_id = None
+        section_to_id = None
+        conn = sqlite3.connect(DEFAULT_DB)
+        with conn:
+            c = conn.cursor()
+            c.execute('''SELECT * FROM (SELECT id FROM points WHERE run_id=?
+                            LIMIT 1 OFFSET ?)
+                         UNION
+                         SELECT * FROM (SELECT id FROM points WHERE run_id=?
+                            LIMIT 1 OFFSET ?)''',
+                    (run_id, section_from, run_id, section_to))
+            data_db = c.fetchall()
+            section_from_id = data_db[0][0]
+            section_to_id = data_db[1][0]
+        
+            # New section
+            if existing_section_id == -1:
+                if len(new_section_name) == 0:
+                    return
+                c.execute('''INSERT INTO sections (name) VALUES (?)''',
+                        (new_section_name,))
+                c.execute('''SELECT id FROM sections ORDER BY id DESC LIMIT 1''')
+                existing_section_id = c.fetchone()[0]
+            
+            # New or old section do the same job
+            c.execute('''INSERT INTO section_run (section_id, run_id,
+                                from_id, to_id) VALUES (?,?,?,?)''',
+                    (existing_section_id, run_id, section_from_id, section_to_id,))
+            conn.commit()
+            self.redirect(self.reverse_url("run_sections", run_id))
+        return
+
 class RunDetailsHandler(RequestHandler):
     def get(self, run_id):
         """ Display details concerning a given run
@@ -135,8 +182,7 @@ class RunDetailsHandler(RequestHandler):
             c.execute('''SELECT latitude_d, longitude_d, altitude_m,
                                 (julianday(datetime)-2440587.5)*86400.0,
                                 distance_m, julianday(datetime)*86400.0-?
-                            FROM points WHERE run_id=?
-                            ORDER BY datetime ASC''',
+                            FROM points WHERE run_id=?''',
                     (run_details['start']+2440587.5*86400,run_id,))
             run_path = c.fetchall()
         
@@ -156,6 +202,7 @@ class RunSectionsHandler(RequestHandler):
         next_run = None
         previous_run = None
         run_path = list()
+        all_sections_available = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
@@ -187,19 +234,24 @@ class RunSectionsHandler(RequestHandler):
                             ORDER BY datetime ASC''',
                     (data_db[0],run_id,))
             run_path = c.fetchall()
+            
+            # Retrieve the available sections
+            c.execute('''SELECT id, name FROM sections''')
+            all_sections_available = c.fetchall()
         
         self.render(get_template("run_sections"), page="run_sections",
                 google_key=GOOGLE_MAPS_KEY, run_id=run_id,
                 previous_run=previous_run, next_run=next_run,
                 corresponding_ids={'latitude': 0, 'longitude': 1,
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
-                run_path=run_path)
+                run_path=run_path, all_sections_available=all_sections_available)
 
 # Define tornado application
 application = Application([
     url(r"/", MyRunsHandler, name="my_runs"),
     url(r"/new/run/", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
+    url(r"/new/section/(\d+)/", NewSectionHandler, name="new_section"),
     url(r"/run/(\d+)/", RunDetailsHandler, name="run_details"),
     url(r"/run/(\d+)/sections/", RunSectionsHandler, name="run_sections"),
     url(r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH}),

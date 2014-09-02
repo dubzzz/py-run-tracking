@@ -34,13 +34,16 @@
       <div id="slider_section_from_to"></div>
       <div id="slider_ajust_from" class="slider-without-color" style="margin-top: 10px;"></div>
       <div id="slider_ajust_to" class="slider-without-color" style="margin-top: 10px;"></div>
-      <form role="form" action="#" method="post" style="margin-top: 20px;">
+      <form role="form" action="{{ reverse_url('new_section', run_id) }}" method="post" style="margin-top: 20px;">
         <input type="text" id="section_from" name="section_from" style="display:none; visibility:hidden;" />
         <input type="text" id="section_to" name="section_to" style="display:none; visibility:hidden;" />
         <div class="form-group">
           <label for="existing_section_id">Nom du tron&ccedil;on :</label>
           <select name="existing_section_id" class="form-control">
-            <option value="0" selected>Cr&eacute;er un nouveau tron&ccedil;on</option>
+            {% for section in all_sections_available %}
+              <option value="{{ section[0] }}">{{ section[1] }}</option>
+            {% end %}
+            <option value="-1" selected>Cr&eacute;er un nouveau tron&ccedil;on</option>
           </select>
           <input type="text" name="new_section_name" class="form-control" placeholder="Uniquement si cr&eacute;ation" />
         <div class="form-group">
