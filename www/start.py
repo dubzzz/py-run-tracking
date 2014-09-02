@@ -95,26 +95,33 @@ class RunDetailsHandler(RequestHandler):
         """ Diplay details concerning a given run
         """
         
+        run_details = dict()
         run_path = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
+            c.execute('''SELECT (julianday(start_time)-2440587.5)*86400.0,
+                                time_s, distance_m, calories
+                            FROM runs WHERE id=?
+                            LIMIT 1''', (run_id,))
+            run_details_db = c.fetchone()
+            run_details = {
+                    'start': run_details_db[0],
+                    'time': run_details_db[1],
+                    'distance': run_details_db[2],
+                    'calories': run_details_db[3],
+                    'speed': float(run_details_db[2])/float(run_details_db[1]),}
+            del run_details_db
             c.execute('''SELECT latitude_d, longitude_d, altitude_m,
                                 (julianday(datetime)-2440587.5)*86400.0,
-                                distance_m
+                                distance_m, julianday(datetime)*86400.0-?
                             FROM points WHERE run_id=?
-                            ORDER BY datetime ASC''', (run_id,))
-            run_path_db = c.fetchall()
-            
-            # Measure time between two points
-            for i in range(len(run_path_db)):
-                pt = list(run_path_db[i])
-                pt.append(pt[3] - run_path_db[0][3])
-                run_path.append(pt)
-            del run_path_db
+                            ORDER BY datetime ASC''', (run_details['start'],run_id,))
+            run_path = c.fetchall()
         
         self.render(get_template("run_details"), page="run_details",
                 google_key=GOOGLE_MAPS_KEY, run_id=run_id,
+                details=run_details,
                 corresponding_ids={'latitude': 0, 'longitude': 1,
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
                 run_path=run_path)

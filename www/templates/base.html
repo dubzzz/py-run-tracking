@@ -51,5 +51,12 @@
       {% end %}
     </div>
   </div>
+  <script type="text/javascript">
+    $("[data-rawdata-type]").each(function() {
+      $(this).html(formatSortedTableData(
+          $(this).html(),
+          $(this).attr('data-rawdata-type')));
+    });
+  </script>
 </body>
 </html>

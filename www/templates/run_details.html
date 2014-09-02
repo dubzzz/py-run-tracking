@@ -22,6 +22,18 @@
         <input type="text" id="amount_markers_num_km" readonly style="border:0; color:#f6931f; font-weight:bold;" />
       </div>
       <div id="slider_markers_num_km"></div>
+      <dl class="dl-horizontal" style="margin-top: 20px;">
+        <dt>Départ</dt>
+        <dd data-rawdata-type="datetime">{{ details['start'] }}</dd>
+        <dt>Temps</dt>
+        <dd data-rawdata-type="time">{{ details['time'] }}</dd>
+        <dt>Distance</dt>
+        <dd data-rawdata-type="distance">{{ details['distance'] }}</dd>
+        <dt>Calories br&ucirc;l&eacute;es</dt>
+        <dd data-rawdata-type="calories">{{ details['calories'] }}</dd>
+        <dt>Vitesse moyenne</dt>
+        <dd data-rawdata-type="speed">{{ details['speed'] }}</dd>
+      </dl>
     </div>
   </div>
   
