@@ -12,12 +12,18 @@
 {% set distance=corresponding_ids['distance'] %}
   <script src="http://maps.googleapis.com/maps/api/js?key={{ google_key}}&sensor=false"></script>
   
-  <div id="map" style="width:500px;height:380px;"></div>
-  <div>
-    <label for="amount_markers_num_km">Marqueurs kilométriques (pas 0,5km) :</label>
-    <input type="text" id="amount_markers_num_km" readonly style="border:0; color:#f6931f; font-weight:bold;" />
+  <div class="row">
+    <div class="col-md-8">
+      <div id="map" style="width:500px;height:380px;"></div>
+    </div>
+    <div class="col-md-4">
+      <div>
+        <label for="amount_markers_num_km">Marqueurs kilométriques (pas 0,5km) :</label>
+        <input type="text" id="amount_markers_num_km" readonly style="border:0; color:#f6931f; font-weight:bold;" />
+      </div>
+      <div id="slider_markers_num_km"></div>
+    </div>
   </div>
-  <div id="slider_markers_num_km"></div>
   
   <script type="text/javascript">
     var path = [
