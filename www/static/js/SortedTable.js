@@ -46,6 +46,26 @@ function formatSortedTableData(rawdata, content) {
 				: to_date.getSeconds().toString();
 		return day_str + "/" + month_str + "/" + year_str
 				+ " " + hours_str + ":" + minutes_str + ":" + seconds_str;
+	} else if (content == "thousands") { // integer
+		var current = parseInt(rawdata);
+		var text = "";
+		while (current != 0 || text.length == 0) {
+			var current_group = current % 1000;
+			current = Math.floor(current/1000);
+			
+			if (text.length != 0)
+				text = " " + text;
+			
+			if (current == 0)
+				text = current_group.toString() + text;
+			else if (current_group < 10)
+				text = "00" + current_group.toString() + text;
+			else if (current_group < 100)
+				text = "0" + current_group.toString() + text;
+			else
+				text = current_group.toString() + text;
+		}
+		return text;
 	} else
 		return rawdata;
 }
@@ -128,16 +148,25 @@ function SortedTable(table, rawdata_details, rawdata) {
 			for (var j=0 ; j!=this.rawdata_details.length +1 ; j++) {
 				var td = $("<td/>");
 				if (j > 0) {
-					if ("unit" in this.rawdata_details[j-1])
-						td.html(this.rawdata[i][j] + " "
-								+ this.rawdata_details[j-1]["unit"]);
-					else if ("content" in this.rawdata_details[j-1])
+					if ("unit" in this.rawdata_details[j-1]) {
+						if (this.rawdata_details[j-1]["type"] == "int")
+							td.html(formatSortedTableData(this.rawdata[i][j],
+									"thousands") + " "
+									+ this.rawdata_details[j-1]["unit"]);
+						else
+							td.html(this.rawdata[i][j] + " "
+									+ this.rawdata_details[j-1]["unit"]);
+					} else if ("content" in this.rawdata_details[j-1])
 						td.html(formatSortedTableData(this.rawdata[i][j],
 								this.rawdata_details[j-1]["content"]));
+					else if (this.rawdata_details[j-1]["type"] == "int")
+						td.html(formatSortedTableData(this.rawdata[i][j],
+								"thousands"));
 					else
 						td.html(this.rawdata[i][j]);
 				} else
-					td.html(this.rawdata[i][j]);
+					td.html(formatSortedTableData(this.rawdata[i][j],
+							"thousands"));
 				tr.append(td);
 			}
 			tbody.append(tr);
