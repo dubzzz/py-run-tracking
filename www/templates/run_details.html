@@ -11,7 +11,14 @@
 {% set datetime=corresponding_ids['datetime'] %}
 {% set distance=corresponding_ids['distance'] %}
   <script src="http://maps.googleapis.com/maps/api/js?key={{ google_key}}&sensor=false"></script>
+  
   <div id="map" style="width:500px;height:380px;"></div>
+  <div>
+    <label for="amount_markers_num_km">Marqueurs kilométriques (pas 0,5km) :</label>
+    <input type="text" id="amount_markers_num_km" readonly style="border:0; color:#f6931f; font-weight:bold;" />
+  </div>
+  <div id="slider_markers_num_km"></div>
+  
   <script type="text/javascript">
     var path = [
       {% for pt in run_path %}
@@ -23,11 +30,30 @@
       {% end %}
     ];
     
-    var pinColor = "FE7569";
+    var mapProp = {
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+    };
+    var map = new google.maps.Map(document.getElementById("map"), mapProp);
+    
+    var pinColor = "FE7596";
     var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
         new google.maps.Size(21, 34),
         new google.maps.Point(0,0),
         new google.maps.Point(10, 34));
+    
+    function createMarker(latlong, icon) {
+      if (icon)
+        return new google.maps.Marker({position: latlong, icon: icon,});
+      else
+        return new google.maps.Marker({position: latlong,});
+    }
+    
+    function addInfoToMarker(map, marker, message) {
+      var infowindow = new google.maps.InfoWindow({content: message,});
+      google.maps.event.addListener(marker, 'click', function() {
+        infowindow.open(map, marker);
+      });
+    }
     
     function initialize() {
       var bounds = new google.maps.LatLngBounds();
@@ -44,38 +70,80 @@
         strokeWeight: 2
       });
       
-      var mapProp = {
-        mapTypeId: google.maps.MapTypeId.ROADMAP,
-      };
-      var map = new google.maps.Map(document.getElementById("map"), mapProp);
-      
       map_pts_polyline.setMap(map);
       
-      var marker_begin = new google.maps.Marker({
-        position: map_pts[0],
-      });
+      var marker_begin = createMarker(map_pts[0], null);
       marker_begin.setMap(map);
-      var infowindow_begin = new google.maps.InfoWindow({
-        content: "Départ le " + formatSortedTableData(path[0]['date'], 'datetime'),
-      });
-      google.maps.event.addListener(marker_begin, 'click', function() {
-        infowindow_begin.open(map, marker_begin);
-      });
+      addInfoToMarker(map, marker_begin,
+          "Départ le " + formatSortedTableData(path[0]['date'], 'datetime'));
       
-      var marker_end = new google.maps.Marker({
-        position: map_pts[map_pts.length -1],
-      });
+      var marker_end = createMarker(map_pts[map_pts.length -1], null);
       marker_end.setMap(map);
-      var infowindow_end = new google.maps.InfoWindow({
-        content: "Arrivée le " + formatSortedTableData(path[path.length -1]['date'], 'datetime'),
-      });
-      google.maps.event.addListener(marker_end, 'click', function() {
-        infowindow_end.open(map, marker_end);
-      });
+      addInfoToMarker(map, marker_end,
+          "Arrivée le " + formatSortedTableData(path[path.length -1]['date'], 'datetime'));
       
       map.fitBounds(bounds);
       map.panToBounds(bounds);
     }
     google.maps.event.addDomListener(window, 'load', initialize);
+  </script>
+  <script>
+    var current_markers_num_km = [];
+    $(function() {
+      $("#slider_markers_num_km").slider({
+        value: 0,
+        min: 0,
+        max: 100,
+        step: 5,
+        slide: function(event, ui) {
+          for (var i=0 ; i!=current_markers_num_km.length ; i++) {
+            current_markers_num_km[i].setMap(null);
+          }
+          current_markers_num_km = [];
+          
+          if (ui.value == 0)
+            $("#amount_markers_num_km").val("Aucun");
+          else {
+            var formatted_txt = Math.floor(ui.value/10) + ","
+                + (ui.value%10) + "km";
+            var markers_info = [];
+            
+            $("#amount_markers_num_km").val(formatted_txt);
+            
+            var step = 1000.*ui.value/10;
+            var next_marker = step;
+            for (var i=0 ; i!=path.length ; i++) {
+              if (path[i]['dist'] < next_marker) continue;
+              
+              var latlong = null;
+              var time = 0;
+              if (i == 0 || path[i]['dist'] == next_marker) {
+                latlong = new google.maps.LatLng(path[i]['lat'], path[i]['long']);
+                time = path[i]['time'];
+              } else {
+                // x defined as: x * dist1 + (1-x) * dist2 = dist_required
+                var x = (next_marker - path[i]['dist'])/(path[i-1]['dist'] - path[i]['dist']);
+                latlong = new google.maps.LatLng(
+                    x * path[i-1]['lat'] + (1-x) * path[i]['lat'],
+                    x * path[i-1]['long'] + (1-x) * path[i]['long']);
+                time = x * path[i-1]['time'] + (1-x) * path[i]['time'];
+              }
+              
+              formatted_txt = Math.floor(next_marker/1000) + ","
+                  + Math.floor(next_marker/100)%10 + "km";
+              current_markers_num_km.push(createMarker(latlong, pinImage));
+              markers_info.push(formatted_txt + " en " + formatSortedTableData(time, 'time'));
+              next_marker += step;
+            }
+          }
+          
+          for (var i=0 ; i!=current_markers_num_km.length ; i++) {
+            current_markers_num_km[i].setMap(map);
+            addInfoToMarker(map, current_markers_num_km[i], markers_info[i]);
+          }
+        }
+      });
+      $("#amount_markers_num_km").val("Aucun");
+    });
   </script>
 {% end %}

@@ -107,14 +107,9 @@ class RunDetailsHandler(RequestHandler):
             run_path_db = c.fetchall()
             
             # Measure time between two points
-            previous_pt_time = None
             for i in range(len(run_path_db)):
                 pt = list(run_path_db[i])
-                if previous_pt_time is None:
-                    pt.append(0)
-                else:
-                    pt.append(pt[3] - previous_pt_time,)
-                previous_pt_time = pt[3]
+                pt.append(pt[3] - run_path_db[0][3])
                 run_path.append(pt)
             del run_path_db
         
