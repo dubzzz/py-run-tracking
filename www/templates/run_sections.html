@@ -27,6 +27,13 @@
       <div id="map" style="width:500px;height:380px;"></div>
     </div>
     <div class="col-md-4">
+      <p>
+        <label for="value_section_from_to">Départ et fin du tronçon :</label>
+        <input type="text" id="value_section_from_to" readonly style="border:0; color:#f6931f; font-weight:bold;">
+      </p>
+      <div id="slider_section_from_to"></div>
+      <div id="slider_ajust_from" class="slider-without-color" style="margin-top: 10px;"></div>
+      <div id="slider_ajust_to" class="slider-without-color" style="margin-top: 10px;"></div>
     </div>
   </div>
   
@@ -59,13 +66,13 @@
       
       // Get the new one
       var map_pts = buildPath(path, from, to);
-      var map_pts_polyline = new google.maps.Polyline({
+      lastPolyline = new google.maps.Polyline({
           path: map_pts,
           strokeColor: "#0000FF",
           strokeOpacity: 0.5,
           strokeWeight: 2
       });
-      map_pts_polyline.setMap(map);
+      lastPolyline.setMap(map);
       
       marker_begin = createMarker(map_pts[0], null);
       marker_begin.setMap(map);
@@ -81,5 +88,38 @@
       adaptMap(map, path);
     }
     google.maps.event.addDomListener(window, 'load', initialize);
+    
+    function updateSliderRange() {
+      var from = $("#slider_section_from_to").slider("values", 0)
+          + $("#slider_ajust_from").slider("value");
+      var to = $("#slider_section_from_to").slider("values", 1)
+          + $("#slider_ajust_to").slider("value");
+      if (from < 0) from = 0;
+      if (to >= path.length) to = path.length -1;
+      $("#value_section_from_to").val(from + " - " + to + " : "
+          + formatSortedTableData(path[to]["dist"]-path[from]["dist"], "distance"));
+      updateMap(map, from, to);
+    }
+    
+    $(function() {
+      $("#slider_section_from_to").slider({
+        range: true,
+        min: 0,
+        max: path.length -1,
+        step: 10,
+        values: [0, path.length -1],
+        slide: updateSliderRange,
+      });
+      $("#slider_ajust_from, #slider_ajust_to").slider({
+        orientation: "horizontal",
+        range: "min",
+        min: -50,
+        max: 50,
+        value: 0,
+        slide: updateSliderRange,
+        change: updateSliderRange,
+      });
+      updateSliderRange();
+    });
   </script>
 {% end %}

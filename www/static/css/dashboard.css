@@ -1,3 +1,7 @@
+.slider-without-color .ui-slider-range {
+    background: none;
+}
+
 /*
  *  * Base structure
  *   */
