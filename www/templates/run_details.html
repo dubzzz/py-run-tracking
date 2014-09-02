@@ -60,46 +60,16 @@
       {% end %}
     ];
     
-    var mapProp = {
-      mapTypeId: google.maps.MapTypeId.ROADMAP,
-    };
     var map = new google.maps.Map(document.getElementById("map"), mapProp);
     
-    var pinColor = "FE7596";
-    var pinImage = new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + pinColor,
-        new google.maps.Size(21, 34),
-        new google.maps.Point(0,0),
-        new google.maps.Point(10, 34));
-    
-    function createMarker(latlong, icon) {
-      if (icon)
-        return new google.maps.Marker({position: latlong, icon: icon,});
-      else
-        return new google.maps.Marker({position: latlong,});
-    }
-    
-    function addInfoToMarker(map, marker, message) {
-      var infowindow = new google.maps.InfoWindow({content: message,});
-      google.maps.event.addListener(marker, 'click', function() {
-        infowindow.open(map, marker);
-      });
-    }
-    
     function initialize() {
-      var bounds = new google.maps.LatLngBounds();
-      var map_pts = [];
-      for (var i=0 ; i!=path.length ; i++) {
-        var pt = new google.maps.LatLng(path[i]['lat'], path[i]['long']);
-        map_pts.push(pt);
-        bounds.extend(pt);
-      }
+      var map_pts = buildPath(path);
       var map_pts_polyline = new google.maps.Polyline({
-        path: map_pts,
-        strokeColor: "#0000FF",
-        strokeOpacity: 0.5,
-        strokeWeight: 2
+          path: map_pts,
+          strokeColor: "#0000FF",
+          strokeOpacity: 0.5,
+          strokeWeight: 2
       });
-      
       map_pts_polyline.setMap(map);
       
       var marker_begin = createMarker(map_pts[0], null);
@@ -112,8 +82,7 @@
       addInfoToMarker(map, marker_end,
           "Arrivée le " + formatSortedTableData(path[path.length -1]['date'], 'datetime'));
       
-      map.fitBounds(bounds);
-      map.panToBounds(bounds);
+      adaptMap(map, path);
     }
     google.maps.event.addDomListener(window, 'load', initialize);
   </script>
