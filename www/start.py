@@ -15,6 +15,7 @@ import sqlite3
 
 import sys
 from os import path
+from threading import Thread
 import uuid
 
 WWW_PATH = path.dirname(__file__)
@@ -28,6 +29,7 @@ from keys import GOOGLE_MAPS_KEY
 sys.path.append(SCRIPT_PATH)
 from generate_db import DEFAULT_DB
 from import_tcx import import_from_tcx
+from find_section_in_run import find_sections_in_runs
 
 def get_template(name):
     return path.join(TEMPLATE_PATH, name+".html")
@@ -89,6 +91,10 @@ class NewRunHandler(RequestHandler):
             f.write(runfile['body'])
         import_from_tcx(fullfilename, DEFAULT_DB)
         
+        # Try to find existing sections in this run
+        Thread(target=find_sections_in_runs, args=(DEFAULT_DB,)).start()
+        
+        # Redirect to new run success
         self.redirect(self.reverse_url("new_run_success"))
 
 class NewSectionHandler(RequestHandler):
@@ -141,7 +147,14 @@ class NewSectionHandler(RequestHandler):
             c.execute('''INSERT INTO section_run (section_id, run_id,
                                 from_id, to_id) VALUES (?,?,?,?)''',
                     (existing_section_id, run_id, section_from_id, section_to_id,))
+            
+            # Commit changes
             conn.commit()
+            
+            # Try to find this section in other runs
+            Thread(target=find_sections_in_runs, args=(DEFAULT_DB,)).start()
+            
+            # Redirect towards run_sections
             self.redirect(self.reverse_url("run_sections", run_id))
         return
 
