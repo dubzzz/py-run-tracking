@@ -128,6 +128,13 @@ class NewSectionHandler(RequestHandler):
                         (new_section_name,))
                 c.execute('''SELECT id FROM sections ORDER BY id DESC LIMIT 1''')
                 existing_section_id = c.fetchone()[0]
+                
+                # The section will have to be analysed vs other runs
+                c.execute('''SELECT id FROM runs WHERE id<>?''', (run_id,))
+                run_ids = c.fetchall()
+                for run_id_ in run_ids:
+                    c.execute('''INSERT into analyse_section_run (section_id, run_id)
+                                    VALUES (?,?)''', (existing_section_id, run_id_[0],))
             
             # New or old section do the same job
             c.execute('''INSERT INTO section_run (section_id, run_id,

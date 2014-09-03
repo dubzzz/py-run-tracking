@@ -107,6 +107,13 @@ def import_activity_from_tcxxml(activitydom, creator=None, db=DEFAULT_DB):
                     (run_id, tp_datetime, tp_latitude_d, tp_longitude_d,
                     tp_altitude_m, tp_distance_m))
         
+        print(''' - - Add the run to the runs to analyse''')
+        c.execute('''SELECT id FROM sections''')
+        section_ids = c.fetchall()
+        for section_id in section_ids:
+            c.execute('''INSERT into analyse_section_run (section_id, run_id)
+                            VALUES (?,?)''', (section_id[0], run_id,))
+        
         print(''' - - Analyse track points''')
         print(''' - - Update the database''')
         conn.commit()

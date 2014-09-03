@@ -251,7 +251,7 @@ def retrieve_run_pts_from_db(run_id, c):
                     WHERE run_id=?''', (run_id,))
     return c.fetchall()
 
-def retrive_section_pts_from_db(section_id, c):
+def retrieve_section_pts_from_db(section_id, c):
     print(''' - Retrieve section ({}) points'''.format(section_id))
     c.execute('''SELECT run_id, from_id, to_id FROM section_run
                     WHERE section_id=?
@@ -296,7 +296,7 @@ def find_section_in_run_db(section_id, run_id, db=DEFAULT_DB):
         c = conn.cursor()
         
         run_pts = retrieve_run_pts_from_db(run_id, c)
-        section_pts = retrive_section_pts_from_db(section_id, c)
+        section_pts = retrieve_section_pts_from_db(section_id, c)
         selected_starting_pts = find_section_in_run(section_pts, run_pts)
         
         feed_db_with_selected_section_run(section_id, section_pts, run_id,
@@ -345,7 +345,7 @@ def find_sections_in_runs(db=DEFAULT_DB):
                 run_id_in_cache = run_cache_ids.index(run_id)
                 run_pts = run_cache[run_id_in_cache]
             except ValueError: # not in cache
-                run_pts = retrive_run_pts_from_db(run_id, c)
+                run_pts = retrieve_run_pts_from_db(run_id, c)
                 run_cache_ids[run_cache_pointer] = run_id
                 run_cache[run_cache_pointer] = run_pts
                 run_cache_pointer = (run_cache_pointer +1) % RUN_CACHE_SIZE
@@ -353,7 +353,7 @@ def find_sections_in_runs(db=DEFAULT_DB):
                 section_id_in_cache = section_cache_ids.index(section_id)
                 section_pts = section_cache[section_id_in_cache]
             except ValueError: # not in cache
-                section_pts = retrive_section_pts_from_db(section_id, c)
+                section_pts = retrieve_section_pts_from_db(section_id, c)
                 section_cache_ids[section_cache_pointer] = section_id
                 section_cache[section_cache_pointer] = section_pts
                 section_cache_pointer = (section_cache_pointer +1) % SECTION_CACHE_SIZE
