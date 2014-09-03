@@ -72,7 +72,7 @@ def getDistancePt2Line(lat1, long1, lat2, long2, lat3, long3):
     
     diff12 = (pt1[0]-pt2[0], pt1[1]-pt2[1], pt1[2]-pt2[2])
     diff13 = (pt1[0]-pt3[0], pt1[1]-pt3[1], pt1[2]-pt3[2])
-    diff32 = (pt3[0]-pt2[0], pt3[1]-pt2[1], pt3[2]-pt2[0])
+    diff32 = (pt3[0]-pt2[0], pt3[1]-pt2[1], pt3[2]-pt2[2])
     return getNorm(getCrossProduct(diff12, diff13))/getNorm(diff32)
 
 def find_section_in_run_start_at(section_pts, run_pts, start_at):
@@ -137,6 +137,42 @@ def find_section_in_run_start_at(section_pts, run_pts, start_at):
         run_to_section += to_add
         current_in_run += 1
     
+    # Compute the value of the sum over the points of section
+    # For each point in section, find the closest run part based on distance
+    #   add the distance to this segment to section_to_run
+    # The closest section part (pt1, pt2) verifies:
+    #   distance pt1 < distance in section < distance pt2
+    current_in_section = 0
+    current_in_run = start_at +1
+    section_to_run = dist_between_starts
+    while current_in_run < num_run -1 \
+            and current_in_section < num_section:
+        in_section = section_pts[current_in_section]
+        
+        # Find closest part of the run
+        while current_in_run < num_run -1 \
+                and in_section[2] > run_pts[current_in_run][2] - init_dist_run:
+            current_in_run += 1
+        
+        # Add the distance of the point to the point/line
+        # To point
+        if current_in_run == 0:
+            to_add = getDistancePt2Pt(in_section[0], in_section[1],
+                    run_pts[0][0], run_pts[0][1])
+        # To point/line
+        else:
+            to_add = getDistancePt2Line(in_section[0], in_section[1],
+                    run_pts[current_in_run-1][0], run_pts[current_in_run-1][1],
+                    run_pts[current_in_run][0], run_pts[current_in_run][1])
+        
+        # Difference is too high to continue
+        if to_add > MAX_ERROR_METERS:
+            #print(''' - - - Section point too far from requirements ({} expected {})'''
+            #        .format(to_add, MAX_ERROR_METERS))
+            return None
+        section_to_run += to_add
+        current_in_section += 1
+    
     # Check if the final distance reached in the run is correct
     final_distance = run_pts[current_in_run -1][2] - init_dist_run
     if final_distance < (1-MAX_ERROR_DISTANCE_RATIO)*total_dist_section \
@@ -146,14 +182,17 @@ def find_section_in_run_start_at(section_pts, run_pts, start_at):
         return None
     
     # Check if average distance is ok
-    avg_error = run_to_section/(current_in_run-start_at)
+    avg_error_r2s = run_to_section/(current_in_run-start_at)
+    avg_error_s2r = section_to_run/(current_in_run-start_at)
+    avg_error = max(avg_error_r2s, avg_error_s2r)
     if avg_error > AVG_ERROR_POINT:
         #print(''' - - - Average error per point too high ({} expected {})'''
         #        .format(avg_error, AVG_ERROR_POINT))
         return None
     
     return {"start": start_at, "end": current_in_run -1,
-            "error": avg_error}
+            "error": avg_error, "error-r2s": avg_error_r2s,
+            "error-s2r": avg_error_s2r}
 
 def find_section_in_run(section_pts, run_pts, db=DEFAULT_DB):
     r"""
@@ -182,8 +221,8 @@ def find_section_in_run(section_pts, run_pts, db=DEFAULT_DB):
     selected_starting_pts = list()
     pt_waiting_validation = None
     for pt in possible_starting_pts:
-        print(''' - Found from {} to {} with error of {}'''
-                .format(pt["start"], pt["end"], pt["error"]))
+        print(''' - Found from {} to {} with error of ({},{})'''
+                .format(pt["start"], pt["end"], pt["error-r2s"], pt["error-s2r"]))
         
         if pt_waiting_validation is None:
             pt_waiting_validation = pt
