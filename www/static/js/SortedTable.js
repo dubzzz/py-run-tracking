@@ -111,7 +111,7 @@ function SortedTable(table, rawdata_details, rawdata) {
 			var content = column.html();
 			var new_content = $("<a/>");
 			new_content.html(content);
-			new_content.attr("href", "#");
+			new_content.attr("href", "javascript: return false;");
 			if (i == 0 || !("content" in this.rawdata_details[i-1]) ||
 					("content" in this.rawdata_details[i-1] &&
 						this.rawdata_details[i-1]["content"] != "url" &&
