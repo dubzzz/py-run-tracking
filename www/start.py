@@ -176,15 +176,19 @@ class RunDetailsHandler(RequestHandler):
             # runs may have been added without any order
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
-                            WHERE start_time>=datetime(?, 'unixepoch') AND id<>?
-                            ORDER BY start_time ASC
-                            LIMIT 1''', (run_details['start'], run_id))
+                            WHERE start_time>datetime(?, 'unixepoch')
+                                OR (start_time=datetime(?, 'unixepoch') AND id>?)
+                            ORDER BY start_time ASC, id ASC
+                            LIMIT 1''',
+                    (run_details['start'], run_details['start'], run_id,))
             next_run = c.fetchone()
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
-                            WHERE start_time<=datetime(?, 'unixepoch') AND id<>?
-                            ORDER BY start_time DESC
-                            LIMIT 1''', (run_details['start'], run_id))
+                            WHERE start_time<datetime(?, 'unixepoch')
+                                OR (start_time=datetime(?, 'unixepoch') AND id<?)
+                            ORDER BY start_time DESC, id DESC
+                            LIMIT 1''',
+                    (run_details['start'], run_details['start'], run_id,))
             previous_run = c.fetchone()
             
             # Retrieve the path
@@ -227,15 +231,15 @@ class RunSectionsHandler(RequestHandler):
             # runs may have been added without any order
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
-                            WHERE start_time>=? AND id<>?
-                            ORDER BY start_time ASC
-                            LIMIT 1''', (data_db[0], run_id))
+                            WHERE start_time>? OR (start_time=? AND id>?)
+                            ORDER BY start_time ASC, id ASC
+                            LIMIT 1''', (data_db[0], data_db[0], run_id,))
             next_run = c.fetchone()
             c.execute('''SELECT id, (julianday(start_time)-2440587.5)*86400.0
                             FROM runs
-                            WHERE start_time<=? AND id<>?
-                            ORDER BY start_time DESC
-                            LIMIT 1''', (data_db[0], run_id))
+                            WHERE start_time<? OR (start_time=? AND id<?)
+                            ORDER BY start_time DESC, id DESC
+                            LIMIT 1''', (data_db[0], data_db[0], run_id,))
             previous_run = c.fetchone()
             
             # Retrieve the path
