@@ -42,13 +42,14 @@ class MyRunsHandler(RequestHandler):
         with conn:
             c = conn.cursor()
             c.execute('''SELECT (julianday(start_time)-2440587.5)*86400.0,
-                                time_s, distance_m, calories
+                                time_s, distance_m, calories, id
                             FROM runs ORDER BY date(start_time) DESC''')
             my_runs_db = c.fetchall()
             for run in my_runs_db:
                 my_runs.append({'date': run[0], 'time': run[1],
                         'distance': run[2], 'calories': run[3],
-                        'speed': float(run[2])/float(run[1])})
+                        'speed': float(run[2])/float(run[1]),
+                        'id': run[4]})
             del my_runs_db
         self.render(get_template("my_runs"), page="my_runs", my_runs=my_runs)
 

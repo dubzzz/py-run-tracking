@@ -13,7 +13,8 @@
         <td>Distance</td>
         <td>Durée</td>
         <td>Vitesse moy.</td>
-        <td>Calories</td>
+        <td>Calories</td> 
+        <td></td>
       </tr>
     </thead>
     <tbody>
@@ -28,13 +29,14 @@
         {type: 'int', content: "time"},
         {type: 'int', content: 'speed'},
         {type: 'int', unit: 'kcal'},
+        {type: 'text', content: 'url',}
     ];
     var my_runs_table_data = [
       {% for run in my_runs %}
         [
           {{ run["date"] }}, {{ run["distance"] }},
           {{ run["time"] }}, {{ run["speed"] }},
-          {{ run["calories"] }},
+          {{ run["calories"] }}, "{{ reverse_url('run_details', run['id']) }}",
         ],
       {% end %}
     ];

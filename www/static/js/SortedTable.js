@@ -75,7 +75,9 @@ function formatSortedTableData(rawdata, content) {
 				text = current_group.toString() + text;
 		}
 		return text;
-	} else
+	} else if (content == "url") {
+		return '<a href="' + encodeURI(rawdata) + '"><span class="glyphicon glyphicon-eye-open"></span></a>';
+	} else // html is in this case
 		return rawdata;
 }
 
@@ -92,7 +94,7 @@ function SortedTable(table, rawdata_details, rawdata) {
 	//        types are: int, text, date, time..
 	//  unit: show a particular unit
 	//  content: apply custom display depending on the content
-	//        contents are: datetime, time, distance
+	//        contents are: datetime, time, distance, html, url
 	this.rawdata_details = rawdata_details;
 
 	// The data that should be put in the table 
@@ -110,13 +112,21 @@ function SortedTable(table, rawdata_details, rawdata) {
 			var new_content = $("<a/>");
 			new_content.html(content);
 			new_content.attr("href", "#");
-			new_content.attr("data-sortedtable", my_id);
-			new_content.attr("data-sortedtable-column", i);
-			new_content.click(function() {
-					var sortedtable_id = parseInt($(this).attr("data-sortedtable"));
-					var column_id = parseInt($(this).attr("data-sortedtable-column"));
-					list_sortedtables[sortedtable_id].update(column_id);
-			});
+			if (i == 0 || !("content" in this.rawdata_details[i-1]) ||
+					("content" in this.rawdata_details[i-1] &&
+						this.rawdata_details[i-1]["content"] != "url" &&
+						this.rawdata_details[i-1]["content"] != "html")) {
+				new_content.attr("data-sortedtable", my_id);
+				new_content.attr("data-sortedtable-column", i);
+				new_content.click(function() {
+						var sortedtable_id = parseInt($(this).attr("data-sortedtable"));
+						var column_id = parseInt($(this).attr("data-sortedtable-column"));
+						list_sortedtables[sortedtable_id].update(column_id);
+				});
+			} else {
+				new_content.attr("data-sortedtable-disabled", my_id);
+				new_content.attr("data-sortedtable-column-disabled", i);
+			}
 			column.html(new_content);
 		}
 
