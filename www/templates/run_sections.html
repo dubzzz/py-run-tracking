@@ -68,7 +68,7 @@
     var lastPolyline = null;
     var marker_begin = null, marker_end = null;
     
-    function updateMap(map, from, to) {
+    function updateMap(map, from, to, color) {
       // Remove the line and the markers
       if (lastPolyline)
         lastPolyline.setMap(null);
@@ -82,12 +82,20 @@
       
       // Get the new one
       var map_pts = buildPath(path, from, to);
-      lastPolyline = new google.maps.Polyline({
-          path: map_pts,
-          strokeColor: "#0000FF",
-          strokeOpacity: 0.5,
-          strokeWeight: 2
-      });
+      if (color == undefined)
+        lastPolyline = new google.maps.Polyline({
+            path: map_pts,
+            strokeColor: "#0000FF",
+            strokeOpacity: 0.5,
+            strokeWeight: 2
+        });
+      else
+        lastPolyline = new google.maps.Polyline({
+            path: map_pts,
+            strokeColor: color,
+            strokeOpacity: 0.5,
+            strokeWeight: 3
+        });
       lastPolyline.setMap(map);
       
       marker_begin = createMarker(map_pts[0], null);
@@ -169,6 +177,7 @@
             {type: 'int', content: "distance"},
             {type: 'int', content: "time"},
             {type: 'int', content: 'speed'},
+            {type: 'text', content: 'html',},
         ];
         var run_sections_table_data = [
           {% for section in run_sections %}
@@ -181,6 +190,7 @@
               {{ delta_distance }},
               {{ delta_time }},
               {% if delta_time != 0 %}{{ delta_distance/delta_time }}{% else %}0{% end %},
+              '<a href="javascript: return false;" onclick="updateMap(map,{{ section[1] }},{{section[2]}},\'#ff0000\')"><span class="glyphicon glyphicon-eye-open"></span></a>'
             ],
           {% end %}
         ];
