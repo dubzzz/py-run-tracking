@@ -11,6 +11,7 @@
 #   -  sqlite database have already been generated using generate_db.py
 #
 # Syntax:
+#   ./find_section_in_run.py
 #   ./find_section_in_run.py <section_id> <run_id>
 
 from __future__ import print_function
@@ -238,7 +239,48 @@ def find_section_in_run(section_pts, run_pts, db=DEFAULT_DB):
         selected_starting_pts.append(pt_waiting_validation)
     
     return selected_starting_pts
-        
+
+def retrieve_run_pts_from_db(run_id, c):
+    """r
+    Get a run from the database given its id
+    """
+    
+    print(''' - Retrieve run ({}) points'''.format(run_id))
+    c.execute('''SELECT latitude_d, longitude_d, distance_m, id
+                    FROM points
+                    WHERE run_id=?''', (run_id,))
+    return c.fetchall()
+
+def retrive_section_pts_from_db(section_id, c):
+    print(''' - Retrieve section ({}) points'''.format(section_id))
+    c.execute('''SELECT run_id, from_id, to_id FROM section_run
+                    WHERE section_id=?
+                    LIMIT 1''', (section_id,))
+    section_details = c.fetchone()
+    c.execute('''SELECT latitude_d, longitude_d, distance_m-start_distance
+                    FROM
+                        points,
+                        (SELECT distance_m AS start_distance FROM points WHERE id=?)
+                    WHERE run_id=? AND ?<=id AND id<=?''',
+            (section_details[1], section_details[0], section_details[1], section_details[2],))
+    return c.fetchall()
+
+def feed_db_with_selected_section_run(section_id, section_pts,
+        run_id, run_pts, selected_starting_pts, c):
+    r"""
+    Feed the db (cursor) with the selected starting points
+    for this (section, run)
+    """
+    
+    print(''' - Selections made for section ({}) and run ({})'''
+            .format(section_id, run_id))
+    for pt in selected_starting_pts:
+        print(''' - - Selected from {} to {} with error of {}'''
+                .format(pt["start"], pt["end"], pt["error"]))
+        c.execute('''INSERT INTO section_run (section_id, run_id, from_id, to_id)
+                        VALUES (?,?,?,?)''', (section_id, run_id,
+                pt["start"]+run_pts[0][3], pt["end"]+run_pts[0][3]))
+ 
 def find_section_in_run_db(section_id, run_id, db=DEFAULT_DB):
     r"""
     Try to recognize a section (one or several times)
@@ -247,61 +289,106 @@ def find_section_in_run_db(section_id, run_id, db=DEFAULT_DB):
     This function reads the DB to get relevant data from section and run
     """
     
-    print('''FIND SECTION IN RUN (database)''')
+    print('''FIND SECTION ({}) IN RUN ({}) (database)'''.format(section_id, run_id))
     print(''' - Connect to the database''')
     conn = sqlite3.connect(db)
     with conn:
         c = conn.cursor()
         
-        print(''' - Retrieve run points''')
-        c.execute('''SELECT latitude_d, longitude_d, distance_m, id
-                        FROM points
-                        WHERE run_id=?''', (run_id,))
-        run_pts = c.fetchall()
-        
-        print(''' - Retrieve section points''')
-        c.execute('''SELECT run_id, from_id, to_id FROM section_run
-                        WHERE section_id=?
-                        LIMIT 1''', (section_id,))
-        section_details = c.fetchone()
-        c.execute('''SELECT latitude_d, longitude_d, distance_m-start_distance
-                        FROM
-                            points,
-                            (SELECT distance_m AS start_distance FROM points WHERE id=?)
-                        WHERE run_id=? AND ?<=id AND id<=?''',
-                (section_details[1], section_details[0], section_details[1], section_details[2],))
-        section_pts = c.fetchall()
-        
+        run_pts = retrieve_run_pts_from_db(run_id, c)
+        section_pts = retrive_section_pts_from_db(section_id, c)
         selected_starting_pts = find_section_in_run(section_pts, run_pts)
         
-        # Add these choices to the db
-        for pt in selected_starting_pts:
-            print(''' - Selected from {} to {} with error of {}'''
-                    .format(pt["start"], pt["end"], pt["error"]))
-            c.execute('''INSERT INTO section_run (section_id, run_id, from_id, to_id)
-                            VALUES (?,?,?,?)''', (section_id, run_id,
-                    pt["start"]+run_pts[0][3], pt["end"]+run_pts[0][3]))
-        
-        if len(selected_starting_pts) > 0:
-            conn.commit()
+        feed_db_with_selected_section_run(section_id, section_pts, run_id,
+                run_pts, selected_starting_pts, c)
+        conn.commit()
+
+SECTION_CACHE_SIZE = 3
+RUN_CACHE_SIZE = 3
+def find_sections_in_runs(db=DEFAULT_DB):
+    r"""
+    Analyse all the (section, run) that remain to be analysed
+    """
     
+    print('''FIND (SECTION, RUN) to analyse (database)''')
+    print(''' - Connect to the database''')
+    
+    # The first idea was to load all the sections and runs required and then
+    # run the computation.
+    # This way of doing is not suitable for large databases, for that reason
+    # a cache will be responsible for storing sections and runs a short time
+    conn = sqlite3.connect(db)
+    with conn:
+        c = conn.cursor()
+        
+        print(''' - Get (section, run) ids''')
+        c.execute('''SELECT section_id, run_id FROM analyse_section_run
+                        ORDER BY run_id, section_id''')
+        section_run_ids = c.fetchall()
+        
+        run_cache_pointer = 0
+        run_cache_ids = list()
+        run_cache = list()
+        for i in range(RUN_CACHE_SIZE):
+            run_cache_ids.append(None)
+            run_cache.append(None)
+        
+        section_cache_pointer = 0
+        section_cache_ids = list()
+        section_cache = list()
+        for i in range(SECTION_CACHE_SIZE):
+            section_cache_ids.append(None)
+            section_cache.append(None)
+        
+        for (section_id, run_id) in section_run_ids:
+            try:
+                run_id_in_cache = run_cache_ids.index(run_id)
+                run_pts = run_cache[run_id_in_cache]
+            except ValueError: # not in cache
+                run_pts = retrive_run_pts_from_db(run_id, c)
+                run_cache_ids[run_cache_pointer] = run_id
+                run_cache[run_cache_pointer] = run_pts
+                run_cache_pointer = (run_cache_pointer +1) % RUN_CACHE_SIZE
+            try:
+                section_id_in_cache = section_cache_ids.index(section_id)
+                section_pts = section_cache[section_id_in_cache]
+            except ValueError: # not in cache
+                section_pts = retrive_section_pts_from_db(section_id, c)
+                section_cache_ids[section_cache_pointer] = section_id
+                section_cache[section_cache_pointer] = section_pts
+                section_cache_pointer = (section_cache_pointer +1) % SECTION_CACHE_SIZE
+            
+            selected_starting_pts = find_section_in_run(section_pts, run_pts)
+            feed_db_with_selected_section_run(section_id, section_pts, run_id,
+                    run_pts, selected_starting_pts, c)
+        conn.commit()
         
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    num_args = len(sys.argv)
+    
+    # Scan the section-run to analyse
+    if num_args == 1:
+        find_sections_in_runs(DEFAULT_DB)
+    # Scan only one section and one run
+    elif num_args == 3:
+        try:
+            section_id = int(sys.argv[1])
+            run_id = int(sys.argv[2])
+        except TypeError, e:
+            print("ERROR: " + e)
+            print('''Syntax: ./find_section_in_run.py''')
+            print('''Syntax: ./find_section_in_run.py <section_id> <run_id>''')
+            exit(2)
+        except ValueError, e:
+            print("ERROR: " + e)
+            print('''Syntax: ./find_section_in_run.py''')
+            print('''Syntax: ./find_section_in_run.py <section_id> <run_id>''')
+            exit(2)
+        
+        # Try to recognize the section in the run
+        find_section_in_run_db(section_id, run_id, DEFAULT_DB)
+    else:
+        print('''Syntax: ./find_section_in_run.py''')
         print('''Syntax: ./find_section_in_run.py <section_id> <run_id>''')
         exit(1)
-    
-    try:
-        section_id = int(sys.argv[1])
-        run_id = int(sys.argv[2])
-    except TypeError, e:
-        print("ERROR: " + e)
-        print('''Syntax: ./find_section_in_run.py <section_id> <run_id>''')
-        exit(2)
-    except ValueError, e:
-        print("ERROR: " + e)
-        print('''Syntax: ./find_section_in_run.py <section_id> <run_id>''')
-        exit(2)
-    
-    # Try to recognize the section in the run
-    find_section_in_run_db(section_id, run_id, DEFAULT_DB)
+

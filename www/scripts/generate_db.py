@@ -26,6 +26,7 @@ def generate_tables(db=DEFAULT_DB):
         #c.execute('''DROP TABLE IF EXISTS points''')
         #c.execute('''DROP TABLE IF EXISTS sections''')
         #c.execute('''DROP TABLE IF EXISTS section_run''')
+        #c.execute('''DROP TABLE IF EXISTS analyse_section_run''')
         
         # Create tables
         c.execute('''CREATE TABLE IF NOT EXISTS runs (
@@ -57,6 +58,12 @@ def generate_tables(db=DEFAULT_DB):
                         FOREIGN KEY(run_id) REFERENCES runs(id),
                         FOREIGN KEY(from_id) REFERENCES points(id),
                         FOREIGN KEY(to_id) REFERENCES points(id))''')
+        c.execute('''CREATE TABLE IF NOT EXISTS analyse_section_run (
+                        id INTEGER PRIMARY KEY,
+                        section_id INTEGER,
+                        run_id INTEGER,
+                        FOREIGN KEY(section_id) REFERENCES sections(id),
+                        FOREIGN KEY(run_id) REFERENCES runs(id))''')
         
         # Commit the changes
         conn.commit()
