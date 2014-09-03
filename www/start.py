@@ -34,7 +34,7 @@ def get_template(name):
 
 class MyRunsHandler(RequestHandler):
     def get(self):
-        """ Display all the runs stored into the database
+        r""" Display all the runs stored into the database
         """
         
         my_runs = list()
@@ -54,19 +54,19 @@ class MyRunsHandler(RequestHandler):
 
 class NewRunHandler(RequestHandler):
     def initialize(self, success=False):
-        """ Initialize the handler
+        r""" Initialize the handler
         """
         self.success = success
     
     def get(self):
-        """ Display a form to add a new run into the database 
+        r""" Display a form to add a new run into the database 
         """
         
         self.render(get_template("new_run"), page="new_run",
                 success=self.success)
     
     def post(self):
-        """ Add a run to the database
+        r""" Add a run to the database
         """
         try:
             runfile = self.request.files['runfile'][0]
@@ -92,7 +92,7 @@ class NewRunHandler(RequestHandler):
 
 class NewSectionHandler(RequestHandler):
     def post(self, run_id):
-        """ Add a section to the run run_id
+        r""" Add a section to the run run_id
         """
         
         section_from = int(self.request.arguments['section_from'][0])
@@ -139,7 +139,7 @@ class NewSectionHandler(RequestHandler):
 
 class RunDetailsHandler(RequestHandler):
     def get(self, run_id):
-        """ Display details concerning a given run
+        r""" Display details concerning a given run
         """
         
         next_run = None
@@ -198,7 +198,7 @@ class RunDetailsHandler(RequestHandler):
 
 class RunSectionsHandler(RequestHandler):
     def get(self, run_id):
-        """ Display sections registered in a given run
+        r""" Display sections registered in a given run
         """
         
         next_run = None
