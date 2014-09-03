@@ -361,6 +361,9 @@ def find_sections_in_runs(db=DEFAULT_DB):
             selected_starting_pts = find_section_in_run(section_pts, run_pts)
             feed_db_with_selected_section_run(section_id, section_pts, run_id,
                     run_pts, selected_starting_pts, c)
+        
+        c.executemany('''DELETE FROM analyse_section_run
+                            WHERE section_id=? AND run_id=?''', section_run_ids)
         conn.commit()
         
 if __name__ == "__main__":
