@@ -32,6 +32,20 @@ table.table-striped.table-blue > tbody > tr > td:nth-child(1) {
     font-variant: small-caps;
 }
 
+.ui-tooltip {
+    border: solid 1px #777;
+    background-color: #fff;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    padding: 5px;
+}
+
+.ui-tooltip table tr td:nth-child(1) {
+    text-align: right;
+    padding-right: 10px;
+    font-weight: bold;
+}
+
 .nav-sidebar li {
     position: relative;
 }
