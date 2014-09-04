@@ -65,50 +65,11 @@
     ];
     
     var map = new google.maps.Map(document.getElementById("map"), mapProp);
-    var lastPolyline = null;
-    var marker_begin = null, marker_end = null;
-    
-    function updateMap(map, from, to, color) {
-      // Remove the line and the markers
-      if (lastPolyline)
-        lastPolyline.setMap(null);
-      if (marker_begin)
-        marker_begin.setMap(null);
-      if (marker_end)
-        marker_end.setMap(null);
-      
-      if (from >= to)
-        return;
-      
-      // Get the new one
-      var map_pts = buildPath(path, from, to);
-      if (color == undefined)
-        lastPolyline = new google.maps.Polyline({
-            path: map_pts,
-            strokeColor: "#0000FF",
-            strokeOpacity: 0.5,
-            strokeWeight: 2
-        });
-      else
-        lastPolyline = new google.maps.Polyline({
-            path: map_pts,
-            strokeColor: color,
-            strokeOpacity: 0.5,
-            strokeWeight: 3
-        });
-      lastPolyline.setMap(map);
-      
-      marker_begin = createMarker(map_pts[0], null);
-      marker_begin.setMap(map);
-      addInfoToMarker(map, marker_begin, "Départ du tronçon");
-      
-      marker_end = createMarker(map_pts[to-from], null);
-      marker_end.setMap(map);
-      addInfoToMarker(map, marker_end, "Fin du tronçon");
-    }
+    var msg_from = "Début du tronçon";
+    var msg_to = "Fin du tronçon";
     
     function initialize() {
-      updateMap(map, 0, path.length -1);
+      updateMap(map, path, 0, msg_from, path.length -1, msg_to);
       adaptMap(map, path);
     }
     google.maps.event.addDomListener(window, 'load', initialize);
@@ -124,7 +85,7 @@
           + formatSortedTableData(path[to]["dist"]-path[from]["dist"], "distance"));
       $("#section_from").val(from);
       $("#section_to").val(to);
-      updateMap(map, from, to);
+      updateMap(map, path, from, msg_from, to, msg_to);
     }
     
     $(function() {
@@ -190,7 +151,7 @@
               {{ delta_distance }},
               {{ delta_time }},
               {% if delta_time != 0 %}{{ delta_distance/delta_time }}{% else %}0{% end %},
-              '<a href="javascript: return false;" onclick="updateMap(map,{{ section[1] }},{{section[2]}},\'#ff0000\')"><span class="glyphicon glyphicon-eye-open"></span></a>'
+              '<a href="javascript:void(0)" onclick="updateMap(map,path,{{ section[1] }},null,{{section[2]}},null,\'#ff0000\')"><span class="glyphicon glyphicon-eye-open"></span></a>'
             ],
           {% end %}
         ];

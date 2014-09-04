@@ -1,5 +1,5 @@
 // Custom sort method
-Array.prototype.sortOnColumn = function(column, reversed=false) {
+Array.prototype.sortOnColumn = function(column, reversed) {
 	this.sort(function(a, b){
 		if(a[column] < b[column]){
 			return reversed ? 1 : -1;
@@ -111,7 +111,7 @@ function SortedTable(table, rawdata_details, rawdata) {
 			var content = column.html();
 			var new_content = $("<a/>");
 			new_content.html(content);
-			new_content.attr("href", "javascript: return false;");
+			new_content.attr("href", "javascript:void(0)");
 			if (i == 0 || !("content" in this.rawdata_details[i-1]) ||
 					("content" in this.rawdata_details[i-1] &&
 						this.rawdata_details[i-1]["content"] != "url" &&
