@@ -48,18 +48,18 @@ class HomeHandler(RequestHandler):
             
             # Retrieve recent activity
             # Same day
-            c.execute('''SELECT SUM(distance_m) FROM runs
+            c.execute('''SELECT SUM(distance_m), SUM(time_s), SUM(calories) FROM runs
                             WHERE strftime('%i %Y',start_time)=strftime('%i %Y',date('now'))''')
-            recent["today"] = c.fetchone()[0]
-            c.execute('''SELECT SUM(distance_m) FROM runs
+            recent["today"] = c.fetchone()
+            c.execute('''SELECT SUM(distance_m), SUM(time_s), SUM(calories) FROM runs
                             WHERE strftime('%W %Y',start_time)=strftime('%W %Y',date('now'))''')
-            recent["week"] = c.fetchone()[0]
-            c.execute('''SELECT SUM(distance_m) FROM runs
+            recent["week"] = c.fetchone()
+            c.execute('''SELECT SUM(distance_m), SUM(time_s), SUM(calories) FROM runs
                             WHERE strftime('%m %Y',start_time)=strftime('%m %Y',date('now'))''')
-            recent["month"] = c.fetchone()[0]
-            c.execute('''SELECT SUM(distance_m) FROM runs
+            recent["month"] = c.fetchone()
+            c.execute('''SELECT SUM(distance_m), SUM(time_s), SUM(calories) FROM runs
                             WHERE strftime('%Y',start_time)=strftime('%Y',date('now'))''')
-            recent["year"] = c.fetchone()[0]
+            recent["year"] = c.fetchone()
             
             # Retrieve high scores
             c.execute('''SELECT hs_id, run_id, is_distance, value, score

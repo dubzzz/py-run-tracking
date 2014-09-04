@@ -18,31 +18,39 @@
         <tbody>
           <tr>
             <td>Aujourd'hui</td>
-            {% if recent["today"] is None %}
-              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% if recent["today"][0] is None %}
+              <td colspan="3">Aucunes donn&eacute;es pour le moment</td>
             {% else %}
-              <td data-rawdata-type="distance">{{ recent["today"] }}</td>
+              <td data-rawdata-type="distance">{{ recent["today"][0] }}</td>
+              <td data-rawdata-type="time">{{ recent["today"][1] }}</td>
+              <td data-rawdata-type="calories" data-rawdata-after=" kcal">{{ recent["today"][2] }}</td>
             {% end %}
           </tr><tr>
             <td>Cette semaine</td>
-            {% if recent["week"] is None %}
-              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% if recent["week"][0] is None %}
+              <td colspan="3">Aucunes donn&eacute;es pour le moment</td>
             {% else %}
-              <td data-rawdata-type="distance">{{ recent["week"] }}</td>
+              <td data-rawdata-type="distance">{{ recent["week"][0] }}</td>
+              <td data-rawdata-type="time">{{ recent["week"][1] }}</td>
+              <td data-rawdata-type="calories" data-rawdata-after=" kcal">{{ recent["week"][2] }}</td>
             {% end %}
           </tr><tr>
             <td>Ce mois</td>
-            {% if recent["month"] is None %}
-              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% if recent["month"][0] is None %}
+              <td colspan="3">Aucunes donn&eacute;es pour le moment</td>
             {% else %}
-              <td data-rawdata-type="distance">{{ recent["month"] }}</td>
+              <td data-rawdata-type="distance">{{ recent["month"][0] }}</td>
+              <td data-rawdata-type="time">{{ recent["month"][1] }}</td>
+              <td data-rawdata-type="calories" data-rawdata-after=" kcal">{{ recent["month"][2] }}</td>
             {% end %}
           </tr><tr>
             <td>Cette ann&eacute;e</td>
-            {% if recent["year"] is None %}
-              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% if recent["year"][0] is None %}
+              <td colspan="3">Aucunes donn&eacute;es pour le moment</td>
             {% else %}
-              <td data-rawdata-type="distance">{{ recent["year"] }}</td>
+              <td data-rawdata-type="distance">{{ recent["year"][0] }}</td>
+              <td data-rawdata-type="time">{{ recent["year"][1] }}</td>
+              <td data-rawdata-type="calories" data-rawdata-after=" kcal">{{ recent["year"][2] }}</td>
             {% end %}
           </tr>
         </tbody>
