@@ -35,8 +35,8 @@ function formatSortedTableData(rawdata, content) {
 		
 		var day_str = to_date.getDate() < 10 ? "0" + to_date.getDate()
 				: to_date.getDate().toString();
-		var month_str = to_date.getMonth() < 10 ? "0" + to_date.getMonth()
-				: to_date.getMonth().toString();
+		var month_str = to_date.getMonth()+1 < 10 ? "0" + (to_date.getMonth()+1)
+				: (to_date.getMonth()+1).toString();
 		var year_str = to_date.getFullYear().toString();
 		return day_str + "/" + month_str + "/" + year_str;
 	} else if (content == "datetime") { // in unix time seconds
@@ -44,8 +44,8 @@ function formatSortedTableData(rawdata, content) {
 		
 		var day_str = to_date.getDate() < 10 ? "0" + to_date.getDate()
 				: to_date.getDate().toString();
-		var month_str = to_date.getMonth() < 10 ? "0" + to_date.getMonth()
-				: to_date.getMonth().toString();
+		var month_str = to_date.getMonth()+1 < 10 ? "0" + (to_date.getMonth()+1)
+				: (to_date.getMonth()+1).toString();
 		var year_str = to_date.getFullYear().toString();
 		var hours_str = to_date.getHours() < 10 ? "0" + to_date.getHours()
 				: to_date.getHours().toString();
