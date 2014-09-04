@@ -10,6 +10,12 @@ Array.prototype.sortOnColumn = function(column, reversed) {
 	});
 }
 
+function numberToString(number, num_decimals) {
+	var power = Math.pow(10, num_decimals);
+	var number_bis = Math.round(number * power);
+	return Math.floor(number_bis/power) + "," + (number_bis%power);
+}
+
 function formatSortedTableData(rawdata, content) {
 	if (content == "time") { // in seconds
 		var hours = Math.floor(rawdata/3600);
@@ -21,15 +27,9 @@ function formatSortedTableData(rawdata, content) {
 		var seconds_txt = seconds < 10 ? "0"+seconds : seconds.toString();
 		return hours + ":" + minutes_txt + ":" + seconds_txt;
 	} else if (content == "distance") { // in meters
-		var distance_km = Math.round(rawdata/100.)/10.;
-		var distance_remaining_100m = Math.round(10*distance_km)%10;
-		return Math.floor(distance_km) + ","
-				+ distance_remaining_100m + " km";
+		return numberToString(rawdata/1000., 1) + " km";
 	} else if (content == "speed") { // in m/s
-		var speed_kmh = Math.round(36.*rawdata)/10.;
-		var speed_remaining_100kmh = Math.round(10*speed_kmh)%10;
-		return Math.floor(speed_kmh) + ","
-				+ speed_remaining_100kmh + " km/h";
+		return numberToString(3.6*rawdata, 1) + " km/h";
 	} else if (content == "date") { // in unix time seconds
 		var to_date = new Date(1000*rawdata);
 		
