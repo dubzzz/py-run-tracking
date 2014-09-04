@@ -35,6 +35,61 @@ from high_scores import get_high_scores_for_run
 def get_template(name):
     return path.join(TEMPLATE_PATH, name+".html")
 
+class HomeHandler(RequestHandler):
+    def get(self):
+        r""" Display the homepage
+        """
+        
+        recent = dict()
+        high_scores = tuple()
+        conn = sqlite3.connect(DEFAULT_DB)
+        with conn:
+            c = conn.cursor()
+            
+            # Retrieve recent activity
+            # Same day
+            c.execute('''SELECT SUM(distance_m) FROM runs
+                            WHERE strftime('%i %Y',start_time)=strftime('%i %Y',date('now'))''')
+            recent["today"] = c.fetchone()[0]
+            c.execute('''SELECT SUM(distance_m) FROM runs
+                            WHERE strftime('%W %Y',start_time)=strftime('%W %Y',date('now'))''')
+            recent["week"] = c.fetchone()[0]
+            c.execute('''SELECT SUM(distance_m) FROM runs
+                            WHERE strftime('%m %Y',start_time)=strftime('%m %Y',date('now'))''')
+            recent["month"] = c.fetchone()[0]
+            c.execute('''SELECT SUM(distance_m) FROM runs
+                            WHERE strftime('%Y',start_time)=strftime('%Y',date('now'))''')
+            recent["year"] = c.fetchone()[0]
+            
+            # Retrieve high scores
+            c.execute('''SELECT hs_id, run_id, is_distance, value, score
+                            FROM high_scores_list AS forrun, (
+                                SELECT hsd.id AS hs_id, hsd.is_distance, hsd.value, MAX(hsl.score) AS mscore
+                                FROM high_scores_details AS hsd
+                                INNER JOIN high_scores_list AS hsl
+                                    ON hsd.id=hsl.high_id
+                                WHERE hsd.is_distance=0
+                                GROUP BY hsd.id
+                            ) AS tmp
+                            WHERE tmp.mscore=forrun.score
+                            GROUP BY hs_id''')
+            high_scores = c.fetchall()
+            c.execute('''SELECT hs_id, run_id, is_distance, value, score
+                            FROM high_scores_list AS forrun, (
+                                SELECT hsd.id AS hs_id, hsd.is_distance, hsd.value, MIN(hsl.score) AS mscore
+                                FROM high_scores_details AS hsd
+                                INNER JOIN high_scores_list AS hsl
+                                    ON hsd.id=hsl.high_id AND hsl.score<>-1
+                                WHERE hsd.is_distance<>0
+                                GROUP BY hsd.id
+                            ) AS tmp
+                            WHERE tmp.mscore=forrun.score
+                            GROUP BY hs_id''')
+            high_scores += c.fetchall()
+        
+        self.render(get_template("home"), page="home", recent=recent,
+                high_scores=high_scores)
+
 class MyRunsHandler(RequestHandler):
     def get(self):
         r""" Display all the runs stored into the database
@@ -168,7 +223,7 @@ class RunDetailsHandler(RequestHandler):
         previous_run = None
         
         run_details = dict()
-        run_path = list()
+        run_path = tuple()
         high_scores = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
@@ -293,7 +348,8 @@ class RunSectionsHandler(RequestHandler):
 
 # Define tornado application
 application = Application([
-    url(r"/", MyRunsHandler, name="my_runs"),
+    url(r"/", HomeHandler, name="home"),
+    url(r"/runs/", MyRunsHandler, name="my_runs"),
     url(r"/new/run/", NewRunHandler, name="new_run"),
     url(r"/new/run/s", NewRunHandler, {'success': True}, name="new_run_success"),
     url(r"/new/section/(\d+)/", NewSectionHandler, name="new_section"),

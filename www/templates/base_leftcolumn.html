@@ -7,6 +7,9 @@
       <li class="title-sidebar">
         <a href="/">Principal</a>
       </li>
+      <li {% if page == "home" %}class="active"{% end %}>
+        <a href="{{ reverse_url('home') }}">Accueil</a>
+      </li>
       <li {% if page == "my_runs" %}class="active"{% end %}>
         <a href="{{ reverse_url('my_runs') }}">Mes sorties</a>
       </li>

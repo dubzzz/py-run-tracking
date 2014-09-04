@@ -2,6 +2,31 @@
     background: none;
 }
 
+.performances {
+    text-align: center;
+}
+
+.performances img {
+    width: 128px;
+    opacity: 0.8;
+}
+
+table.table-striped.table-yellow > tbody > tr:nth-child(2n+1) > td {
+    background-color: #FFD;
+}
+
+table.table-striped.table-yellow > tbody > tr > td {
+    border-top: 1px solid #FFA;
+}
+
+table.table-striped.table-blue > tbody > tr:nth-child(2n+1) > td {
+    background-color: #F5F5FF;
+}
+
+table.table-striped.table-blue > tbody > tr > td {
+    border-top: 1px solid #DDF;
+}
+
 /*
  *  * Base structure
  *   */
@@ -77,7 +102,7 @@
 .main {
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 35px;
+  padding-top: 30px;
 }
 @media (min-width: 768px) {
   .main {

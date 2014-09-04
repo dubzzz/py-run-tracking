@@ -1,0 +1,79 @@
+{% extends "base_leftcolumn.html" %}
+
+{% block title %}Accueil{% end %}
+{% block title_h1 %}Accueil{% end %}
+
+{% block subcontent %}
+{% set hs_id=0 %}
+{% set run_id=1 %}
+{% set is_distance=2 %}
+{% set value=3 %}
+{% set score=4 %}
+  <div class="row">
+    <div class="col-md-3 performances">
+      <img alt="calendar" src="/static/images/calendar.png" />
+    </div>
+    <div class="col-md-9">
+      <table class="table table-striped table-blue">
+        <tbody>
+          <tr>
+            <td>Aujourd'hui</td>
+            {% if recent["today"] is None %}
+              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% else %}
+              <td data-rawdata-type="distance">{{ recent["today"] }}</td>
+            {% end %}
+          </tr><tr>
+            <td>Cette semaine</td>
+            {% if recent["week"] is None %}
+              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% else %}
+              <td data-rawdata-type="distance">{{ recent["week"] }}</td>
+            {% end %}
+          </tr><tr>
+            <td>Ce mois</td>
+            {% if recent["month"] is None %}
+              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% else %}
+              <td data-rawdata-type="distance">{{ recent["month"] }}</td>
+            {% end %}
+          </tr><tr>
+            <td>Cette ann&eacute;e</td>
+            {% if recent["year"] is None %}
+              <td>Aucunes donn&eacute;es pour le moment</td>
+            {% else %}
+              <td data-rawdata-type="distance">{{ recent["year"] }}</td>
+            {% end %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="row" style="margin-top: 10px;">
+    <div class="col-md-9">
+      <table class="table table-striped table-yellow">
+        <tbody>
+          {% for hs in high_scores %}
+            {#{% if hs[score] is not None and hs[score] > 0 %}#}
+              {% set hs_id_=hs[hs_id] %}
+              <tr>
+                <td>{% if hs_id_ == 1 %}Cooper (12min)
+                    {% elif hs_id_ == 2 %}Course d'une heure
+                    {% elif hs_id_ == 6 %}Semi-marathon
+                    {% elif hs_id_ == 7 %}Marathon
+                    {% elif hs[is_distance] %}{{ hs[value]/1000 }} km
+                    {% else %}{{ hs[value]/60 }} minutes{% end %}</td>
+                <td data-rawdata-type="{% if hs[is_distance] %}time{% else %}distance{% end %}">{{ hs[score] }}</td>
+              </tr>
+            {% end %}
+          {#{% end %}#}
+        </tbody>
+      </table>
+    </div>
+    <div class="col-md-3 performances">
+      <img alt="sportcup" src="/static/images/sportcup.png" />
+    </div>
+  </div>
+  <script>
+  </script>
+{% end %}
