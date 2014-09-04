@@ -76,6 +76,7 @@ def generate_tables(db=DEFAULT_DB):
                         run_id INTEGER,
                         from_f REAL,
                         to_f REAL,
+                        score INTEGER,
                         FOREIGN KEY(best_id) REFERENCES best_scores(id),
                         FOREIGN KEY(run_id) REFERENCES runs(id))''')
         best_scores_init = (
