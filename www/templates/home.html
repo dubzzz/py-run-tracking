@@ -71,7 +71,7 @@
                     {% elif hs_id_ == 7 %}Marathon
                     {% elif hs[is_distance] %}{{ hs[value]/1000 }} km
                     {% else %}{{ hs[value]/60 }} minutes{% end %}</td>
-                <td data-rawdata-type="{% if hs[is_distance] %}time{% else %}distance{% end %}">{{ hs[score] }}</td>
+                <td data-rawdata-type="{% if hs[is_distance] %}time{% else %}distance{% end %}" {% if not hs[is_distance] %}data-rawdata-notooltip{% end %}>{{ hs[score] }}</td>
                 <td><a href="{{ reverse_url('run_details', hs[run_id]) }}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
               </tr>
             {% end %}

@@ -146,7 +146,7 @@
                   {% elif hs_id == 7 %}Marathon
                   {% elif hs["is_distance"] %}{{ hs["value"]/1000 }} km
                   {% else %}{{ hs["value"]/60 }} minutes{% end %}</td>
-              <td data-rawdata-type="{% if hs["is_distance"] %}time{% else %}distance{% end %}">{{ hs["score"] }}</td>
+              <td data-rawdata-type="{% if hs["is_distance"] %}time{% else %}distance{% end %}" {% if not hs["is_distance"] %}data-rawdata-notooltip{% end %}>{{ hs["score"] }}</td>
               <td><a href="javascript:void(0)" onclick="eraseMarkersAndUpdateMap(map,path,{{ hs["from"] }},null,{{ hs["to"] }},null,'#ff0000')"><span class="glyphicon glyphicon-eye-open"></span></a></td>
             </tr>
           {% end %}

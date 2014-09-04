@@ -37,7 +37,8 @@
       var after = $(this).attr('data-rawdata-after');
       if (after == undefined) after = "";
       $(this).html(before + formatted + after);
-      addTooltipIfPossible($(this), value, content);
+      if ($(this).attr('data-rawdata-notooltip') == undefined)
+        addTooltipIfPossible($(this), value, content);
     });
   </script>
 </body>
