@@ -134,7 +134,7 @@ function addTooltipIfPossible(jquery_element, value, content) {
 	if (funny_txt.length != 0) {
 		funny_txt = '<table>' + funny_txt + '</table>';
 		jquery_element.tooltip({content: funny_txt, items: "*",
-				show: false, track: true});
+				show: false, hide: false, track: true});
 	}
 }
 
