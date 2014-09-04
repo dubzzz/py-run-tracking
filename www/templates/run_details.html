@@ -44,6 +44,22 @@
         <dt>Vitesse moyenne</dt>
         <dd data-rawdata-type="speed">{{ details['speed'] }}</dd>
       </dl>
+      <table class="table table-striped">
+        <tbody>
+          {% for hs in high_scores %}
+            {% set hs_id = hs["id"] %}
+            <tr>
+              <td>{% if hs_id == 1 %}Cooper (12min)
+                  {% elif hs_id == 2 %}Course d'une heure
+                  {% elif hs_id == 6 %}Semi-marathon
+                  {% elif hs_id == 7 %}Marathon
+                  {% elif hs["is_distance"] %}{{ hs["value"]/1000 }} km
+                  {% else %}{{ hs["value"]/60 }} minutes{% end %}</td>
+              <td data-rawdata-type="{% if hs["is_distance"] %}time{% else %}distance{% end %}">{{ hs["score"] }}</td>
+            </tr>
+          {% end %}
+        </tbody>
+      </table>
     </div>
   </div>
   

@@ -30,6 +30,7 @@ sys.path.append(SCRIPT_PATH)
 from generate_db import DEFAULT_DB
 from import_tcx import import_from_tcx
 from find_section_in_run import find_sections_in_runs
+from high_scores import get_high_scores_for_run
 
 def get_template(name):
     return path.join(TEMPLATE_PATH, name+".html")
@@ -168,6 +169,7 @@ class RunDetailsHandler(RequestHandler):
         
         run_details = dict()
         run_path = list()
+        high_scores = list()
         conn = sqlite3.connect(DEFAULT_DB)
         with conn:
             c = conn.cursor()
@@ -212,6 +214,10 @@ class RunDetailsHandler(RequestHandler):
                             FROM points WHERE run_id=?''',
                     (run_details['start']+2440587.5*86400,run_id,))
             run_path = c.fetchall()
+            
+            # Get high scores
+            high_scores = get_high_scores_for_run(run_id, c)
+            conn.commit()
         
         self.render(get_template("run_details"), page="run_details",
                 google_key=GOOGLE_MAPS_KEY, run_id=run_id,
@@ -219,7 +225,7 @@ class RunDetailsHandler(RequestHandler):
                 details=run_details,
                 corresponding_ids={'latitude': 0, 'longitude': 1,
                     'altitude': 2, 'datetime': 3, 'distance': 4, 'time': 5},
-                run_path=run_path)
+                run_path=run_path, high_scores=high_scores)
 
 class RunSectionsHandler(RequestHandler):
     def get(self, run_id):
