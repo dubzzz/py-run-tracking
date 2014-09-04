@@ -37,6 +37,7 @@ table.table-striped.table-blue > tbody > tr > td {
     right: 20px;
     top: 10px;
     line-height: 20px;
+    opacity: 0.2;
 }
 
 /*
