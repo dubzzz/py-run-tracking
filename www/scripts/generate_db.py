@@ -72,12 +72,12 @@ def generate_tables(db=DEFAULT_DB):
                         value INTEGER)''')
         c.execute('''CREATE TABLE IF NOT EXISTS high_scores_list (
                         id INTEGER PRIMARY KEY,
-                        best_id INTEGER,
+                        high_id INTEGER,
                         run_id INTEGER,
                         from_f REAL,
                         to_f REAL,
                         score INTEGER,
-                        FOREIGN KEY(best_id) REFERENCES best_scores(id),
+                        FOREIGN KEY(high_id) REFERENCES high_scores_details(id),
                         FOREIGN KEY(run_id) REFERENCES runs(id))''')
         high_scores_details_init = (
                 (1, 0, 720), # Cooper (12min)
