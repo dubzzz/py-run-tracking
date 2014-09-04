@@ -27,6 +27,11 @@ table.table-striped.table-blue > tbody > tr > td {
     border-top: 1px solid #DDF;
 }
 
+table.table-striped.table-yellow > tbody > tr > td:nth-child(1),
+table.table-striped.table-blue > tbody > tr > td:nth-child(1) {
+    font-variant: small-caps;
+}
+
 .nav-sidebar li {
     position: relative;
 }
