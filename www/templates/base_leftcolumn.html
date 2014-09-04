@@ -8,13 +8,13 @@
         <a href="/">Principal</a>
       </li>
       <li {% if page == "home" %}class="active"{% end %}>
-        <a href="{{ reverse_url('home') }}">Accueil</a>
+        <a href="{{ reverse_url('home') }}">Accueil <span class="glyphicon glyphicon-home"></span></a>
       </li>
       <li {% if page == "my_runs" %}class="active"{% end %}>
-        <a href="{{ reverse_url('my_runs') }}">Mes sorties</a>
+        <a href="{{ reverse_url('my_runs') }}">Mes sorties <span class="glyphicon glyphicon-th-list"></span></a>
       </li>
       <li {% if page == "new_run" %}class="active"{% end %}>
-        <a href="{{ reverse_url('new_run') }}"><span class="glyphicon glyphicon-plus"></span> Nouvelle sortie</a>
+        <a href="{{ reverse_url('new_run') }}">Nouvelle sortie <span class="glyphicon glyphicon-plus"></span></a>
       </li>
       {% block subnav %}{% end %}
     </ul>

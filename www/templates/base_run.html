@@ -10,9 +10,9 @@
   <a href="{{ reverse_url('run_details', run_id) }}">Sortie</a>
 </li>
 <li {% if page == "run_details" %}class="active"{% end %}>
-  <a href="{{ reverse_url('run_details', run_id) }}">D&eacute;tails</a>
+  <a href="{{ reverse_url('run_details', run_id) }}">D&eacute;tails <span class="glyphicon glyphicon-th-large"></span></a>
 </li>
 <li {% if page == "run_sections" %}class="active"{% end %}>
-  <a href="{{ reverse_url('run_sections', run_id) }}">Tron&ccedil;ons</a>
+  <a href="{{ reverse_url('run_sections', run_id) }}">Tron&ccedil;ons <span class="glyphicon glyphicon-pushpin"></span></a>
 </li>
 {% end %}

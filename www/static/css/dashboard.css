@@ -27,6 +27,18 @@ table.table-striped.table-blue > tbody > tr > td {
     border-top: 1px solid #DDF;
 }
 
+.nav-sidebar li {
+    position: relative;
+}
+
+.nav-sidebar li .glyphicon {
+    position: absolute;
+    display: inline-block;
+    right: 20px;
+    top: 10px;
+    line-height: 20px;
+}
+
 /*
  *  * Base structure
  *   */
