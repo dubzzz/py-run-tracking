@@ -54,7 +54,7 @@
       <table class="table table-striped table-yellow">
         <tbody>
           {% for hs in high_scores %}
-            {#{% if hs[score] is not None and hs[score] > 0 %}#}
+            {% if hs[score] is not None and hs[score] > 0 %}
               {% set hs_id_=hs[hs_id] %}
               <tr>
                 <td>{% if hs_id_ == 1 %}Cooper (12min)
@@ -64,9 +64,10 @@
                     {% elif hs[is_distance] %}{{ hs[value]/1000 }} km
                     {% else %}{{ hs[value]/60 }} minutes{% end %}</td>
                 <td data-rawdata-type="{% if hs[is_distance] %}time{% else %}distance{% end %}">{{ hs[score] }}</td>
+                <td><a href="{{ reverse_url('run_details', hs[run_id]) }}"><span class="glyphicon glyphicon-eye-open"></span></a></td>
               </tr>
             {% end %}
-          {#{% end %}#}
+          {% end %}
         </tbody>
       </table>
     </div>
