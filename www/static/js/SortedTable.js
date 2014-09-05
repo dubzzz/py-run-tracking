@@ -97,7 +97,7 @@ var known_content_format = [
 var known_content_funny_values = {
 		calories: [
 			{value: 12.025, name: "M&M's",},
-			{value: 180, name: "Croissant", plural: "Croissants"},
+			{value: 166, name: "Montée au sommet de la Tour Eiffel", plural: "Montées au sommet de la Tour Eiffel"}, // source: http://sante.lefigaro.fr/actualite/2014/02/26/22039-compter-calories-brulees-grimpant-lescalier
 			{value: 509, name: "Big Mac"},
 		],
 		distance: [
