@@ -212,7 +212,7 @@
           
           // Draw the chart
           var MARGIN_BETWEEN_BARS = 5;
-          var BAR_WIDTH = 20;
+          var BAR_WIDTH = parseInt(width/bars.length -MARGIN_BETWEEN_BARS);
           var context = this.html_elt.getContext('2d');
           for (var i=0 ; i!=bars.length ; i++) {
             var barHeight = height * bars[i]['time']/max_time;
