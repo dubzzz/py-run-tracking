@@ -202,10 +202,13 @@
             }
           }
           // Add last meters
-          var time_last_meters = this.path[this.path.length -1]['time'] - bar_start_time;
-          min_time = Math.min(min_time, time_last_meters);
-          max_time = Math.max(max_time, time_last_meters);
-          bars.push({time: time_last_meters});
+          if (this.path[this.path.length -1]['dist'] > to_meter) {
+            var time_last_meters = this.path[this.path.length -1]['time'] - bar_start_time;
+            time_last_meters *= this.step_size / (this.path[this.path.length -1]['dist'] - to_meter);
+            min_time = Math.min(min_time, time_last_meters);
+            max_time = Math.max(max_time, time_last_meters);
+            bars.push({time: time_last_meters});
+          }
           
           // Draw the chart
           var MARGIN_BETWEEN_BARS = 5;
