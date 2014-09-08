@@ -213,12 +213,16 @@
           // Draw the chart
           var MARGIN_BETWEEN_BARS = 5;
           var BAR_WIDTH = parseInt(width/bars.length -MARGIN_BETWEEN_BARS);
+          var BAR_MIN_HEIGHT = 10;
           var context = this.html_elt.getContext('2d');
           for (var i=0 ; i!=bars.length ; i++) {
-            var barHeight = height * bars[i]['time']/max_time;
+            var barHeight = 0;
             if (min_time == max_time) {
+              barHeight = BAR_MIN_HEIGHT;
               context.fillStyle = 'yellow';
             } else {
+              barHeight = BAR_MIN_HEIGHT
+                  + (height - BAR_MIN_HEIGHT) * (bars[i]['time'] - min_time)/(max_time - min_time);
               var ratio = (bars[i]['time']-min_time)/(max_time-min_time);
               if (ratio < 0.5) {
                 context.fillStyle = 'rgb(' + parseInt(510*ratio) + ',255,0)';
