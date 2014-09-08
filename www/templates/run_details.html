@@ -213,7 +213,16 @@
           var context = this.html_elt.getContext('2d');
           for (var i=0 ; i!=bars.length ; i++) {
             var barHeight = height * bars[i]['time']/max_time;
-            context.fillStyle = 'yellow';
+            if (min_time == max_time) {
+              context.fillStyle = 'yellow';
+            } else {
+              var ratio = (bars[i]['time']-min_time)/(max_time-min_time);
+              if (ratio < 0.5) {
+                context.fillStyle = 'rgb(' + parseInt(510*ratio) + ',255,0)';
+              } else {
+                context.fillStyle = 'rgb(255,' + parseInt(255-510*(ratio-0.5)) + ',0)';
+              }
+            }
             context.fillRect(
                 i*(BAR_WIDTH+MARGIN_BETWEEN_BARS),
                 height - barHeight,
