@@ -31,7 +31,8 @@
     $("[data-rawdata-type]").each(function() {
       var value = $(this).html();
       var content = $(this).attr('data-rawdata-type');
-      var formatted = formatSortedTableData(value, content);
+      var formatted = formatSortedTableData(value,
+          $.inArray(content, known_content_format) != -1 ? content : "thousands");
       var before = $(this).attr('data-rawdata-before');
       if (before == undefined) before = "";
       var after = $(this).attr('data-rawdata-after');
