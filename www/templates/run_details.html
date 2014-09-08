@@ -50,7 +50,7 @@
             {
               lat: {{ pt[latitude] }}, long: {{ pt[longitude] }},
               alt: {{ pt[altitude] }}, time: {{ pt[time] }},
-              date: {{ pt[datetime] }}, dist: {{ pt[distance]}},
+              date: {{ pt[datetime] }}, dist: {{ pt[distance] }},
             },
           {% end %}
         ];
@@ -153,5 +153,76 @@
         </tbody>
       </table>
     </div>
+  </div>
+  <div class="row">
+    <canvas id="perfchart" width="500" height="75" style="margin-top: 10px;"></canvas>
+    <script type="text/javascript">
+      function PerfChart(html_elt, path) {
+        // Corresponding html element (canvas)
+        this.html_elt = html_elt;
+        this.jquery_elt = $(html_elt);
+        // Path with keys: lat, long, time, dist (for each item)
+        this.path = path;
+        // Size of the step in meters
+        this.step_size = 1000;
+        
+        this.updateChart = function() {
+          // Update chart width based of the parent size
+          this.html_elt.width = this.jquery_elt.parent().innerWidth();
+          
+          // Retrieve height and width
+          var width = this.html_elt.width;
+          var height = this.html_elt.height;
+          
+          // Values to keep in memory
+          var min_time = 1e99;
+          var max_time = -1;
+          
+          // Compute data for each bar
+          var to_meter = this.step_size;
+          var bar_start_time = this.path[0]['time'];
+          var bars = [];
+          for (var i=1 ; i<this.path.length ; i++) {
+            // i must be >0: if path is correct for i=0, distance=0
+            if (this.path[i]['dist'] > to_meter) {
+              // the section from to_meter to this.path[i]['dist'] is done during this section
+              // the beginning of next section is between
+              //   this.path[i-1]['time'] and this.path[i]['time']
+              var last_chunk_dist = this.path[i]['dist'] - this.path[i-1]['dist'];
+              var extra_dist = this.path[i]['dist'] - to_meter;
+              var last_chunk_time = this.path[i]['time'] - this.path[i-1]['time'];
+              var extra_time = last_chunk_time * extra_dist / last_chunk_dist;
+              
+              var time_last_meters = this.path[i]['time'] - bar_start_time - extra_time;
+              min_time = Math.min(min_time, time_last_meters);
+              max_time = Math.max(max_time, time_last_meters);
+              bars.push({time: time_last_meters}); // TODO: from, to
+              bar_start_time = this.path[i]['time'] - extra_time;
+              to_meter += this.step_size;
+            }
+          }
+          // Add last meters
+          var time_last_meters = this.path[this.path.length -1]['time'] - bar_start_time;
+          min_time = Math.min(min_time, time_last_meters);
+          max_time = Math.max(max_time, time_last_meters);
+          bars.push({time: time_last_meters});
+          
+          // Draw the chart
+          var MARGIN_BETWEEN_BARS = 5;
+          var BAR_WIDTH = 20;
+          var context = this.html_elt.getContext('2d');
+          for (var i=0 ; i!=bars.length ; i++) {
+            var barHeight = height * bars[i]['time']/max_time;
+            context.fillStyle = 'yellow';
+            context.fillRect(
+                i*(BAR_WIDTH+MARGIN_BETWEEN_BARS),
+                height - barHeight,
+                BAR_WIDTH, barHeight);
+          }
+        };
+      }
+      var perfChart = new PerfChart($('#perfchart')[0], path);
+      perfChart.updateChart();
+    </script>
   </div>
 {% end %}
