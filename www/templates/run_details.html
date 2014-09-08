@@ -225,9 +225,9 @@
                   + (height - BAR_MIN_HEIGHT) * (bars[i]['time'] - min_time)/(max_time - min_time);
               var ratio = (bars[i]['time']-min_time)/(max_time-min_time);
               if (ratio < 0.5) {
-                context.fillStyle = 'rgb(' + parseInt(510*ratio) + ',255,0)';
+                context.fillStyle = 'rgb(' + parseInt(448*ratio) + ',224,0)';
               } else {
-                context.fillStyle = 'rgb(255,' + parseInt(255-510*(ratio-0.5)) + ',0)';
+                context.fillStyle = 'rgb(224,' + parseInt(224-448*(ratio-0.5)) + ',0)';
               }
             }
             context.fillRect(
