@@ -379,5 +379,5 @@ if __name__ == "__main__":
     
     # Start the server
     application.listen(port)
-    IOLoop.current().start()
+    IOLoop.instance().start()
 
