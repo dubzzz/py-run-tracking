@@ -81,6 +81,7 @@ def import_activity_from_tcxxml(activitydom, creator=None, db=DEFAULT_DB):
         
         num_pts_analysed = 0
         num_pts = len(trackpoints)
+        prev_distance_m = 0
         for tp in trackpoints:
             num_pts_analysed += 1
             print(''' - - Analyse track points ({}/{})''' \
@@ -101,11 +102,20 @@ def import_activity_from_tcxxml(activitydom, creator=None, db=DEFAULT_DB):
                     .getElementsByTagName("LongitudeDegrees")[0] \
                     .childNodes[0].data
             
-            c.execute('''INSERT INTO points (run_id, datetime, latitude_d,
-                            longitude_d, altitude_m, distance_m)
-                            VALUES (?,?,?,?,?,?)''',
-                    (run_id, tp_datetime, tp_latitude_d, tp_longitude_d,
-                    tp_altitude_m, tp_distance_m))
+            try:
+                distance_m_diff = float(tp_distance_m) - float(prev_distance_m)
+            except:
+                distance_m_diff = -1
+            if distance_m_diff >= 0:
+                c.execute('''INSERT INTO points (run_id, datetime, latitude_d,
+                                longitude_d, altitude_m, distance_m)
+                                VALUES (?,?,?,?,?,?)''',
+                        (run_id, tp_datetime, tp_latitude_d, tp_longitude_d,
+                        tp_altitude_m, tp_distance_m))
+                prev_distance_m = tp_distance_m
+            else:
+                print(''' - - - WARNING: Malformed track point ({}/{})''' \
+                        .format(num_pts_analysed, num_pts))
         
         print(''' - - Add the run to the runs to analyse''')
         c.execute('''SELECT id FROM sections''')
